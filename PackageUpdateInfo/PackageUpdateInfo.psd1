@@ -3,7 +3,7 @@
     ModuleToProcess = 'PackageUpdateInfo.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.1.0.0'
+    ModuleVersion = '1.0.0.0'
 
     # ID used to uniquely identify this module
     GUID = '1f216c97-d110-4d88-bc30-ec850757a256'
@@ -18,7 +18,7 @@
     Copyright = 'Copyright (c) 2018 Andreas Bellstedt'
 
     # Description of the functionality provided by this module
-    Description = 'Module to version check all installed modules. Helps to stay up-to-date with further developing modules in the community'
+    Description = 'Module to version check all installed modules. Helps to stay up-to-date with further developing on modules in the community'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.0'
@@ -39,7 +39,9 @@
 
     # Functions to export from this module
     FunctionsToExport = @(
-        'Get-PackageUpdateInfo'
+        'Get-PackageUpdateInfo',
+        'Export-PackageUpdateInfo',
+        'Import-PackageUpdateInfo'
     )
 
     # Cmdlets to export from this module
@@ -50,7 +52,9 @@
 
     # Aliases to export from this module
     AliasesToExport = @(
-        'gpui'
+        'gpui',
+        'epui',
+        'ipui'
     )
 
     # List of all files packaged with this module
@@ -63,13 +67,13 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            # Tags = @()
+            Tags = @('ModuleUpdateInfo', 'ModuleUpdate', 'ModuleUpdater', 'PSGallery', 'Updater', 'Updates', 'Update', 'Package', 'Packages', 'UpdateManagement', "UpdateMgmt", 'UpdMgmt')
 
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri = 'https://github.com/AndiBellstedt/PackageUpdateInfo/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri = 'https://github.com/AndiBellstedt/PackageUpdateInfo'
 
             # A URL to an icon representing this module.
             # IconUri = ''

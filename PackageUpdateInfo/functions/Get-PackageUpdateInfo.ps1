@@ -1,4 +1,4 @@
-function Get-PackageUpdateInfo {
+﻿function Get-PackageUpdateInfo {
     <#
     .SYNOPSIS
         Get info about up-to-dateness for installed modules
@@ -54,14 +54,14 @@ function Get-PackageUpdateInfo {
         Get-Module "Pester", "PSReadline" | Get-PackageUpdateInfo
 
     #>
-    [CmdletBinding( DefaultParameterSetName='DefaultSet1',
-                    SupportsShouldProcess=$false,
-                    ConfirmImpact='Low')]
+    [CmdletBinding( DefaultParameterSetName = 'DefaultSet1',
+        SupportsShouldProcess = $false,
+        ConfirmImpact = 'Low')]
     [Alias('gpui')]
     [OutputType([PackageUpdate.Info])]
     Param (
-        [Parameter(ValueFromPipeline=$true,
-                   ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [string[]]
         $Name,
 
@@ -71,46 +71,46 @@ function Get-PackageUpdateInfo {
         [switch]
         $ShowOnlyNeededUpdate,
 
-        [Parameter(ParameterSetName='CurrentUser')]
+        [Parameter(ParameterSetName = 'CurrentUser')]
         [switch]
         $CurrentUser,
 
-        [Parameter(ParameterSetName='AllUsers')]
+        [Parameter(ParameterSetName = 'AllUsers')]
         [switch]
         $AllUsers
     )
-    
+
     begin {
         $currentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
         $allUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
-        
+
         $getPSRepositoryParams = @{}
-        if($Repository) { $getPSRepositoryParams.Add("Name",$Repository) }
+        if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
         $psRepositories = Get-PSRepository @getPSRepositoryParams -ErrorAction Stop
     }
 
     process {
-        if(-not $Name) { $Name = "*" }
+        if (-not $Name) { $Name = "*" }
         foreach ($nameItem in $Name) {
             # Get local module(s)
             Write-Verbose "Get local module(s): $($nameItem)"
             $getModuleParams = @{
                 ListAvailable = $true
-                Name = $nameItem
-                Verbose = $false
+                Name          = $nameItem
+                Verbose       = $false
             }
             $modulesLocal = Get-Module @getModuleParams | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0]}
 
             # Filtering out if switches are specified
             Write-Verbose "Do the filtering..."
-            if($CurrentUser) {
-                $modulesLocal = foreach($path in $currentUserModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
+            if ($CurrentUser) {
+                $modulesLocal = foreach ($path in $currentUserModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
             }
-            if($AllUsers) {
-                $modulesLocal = foreach($path in $allUsersModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
+            if ($AllUsers) {
+                $modulesLocal = foreach ($path in $allUsersModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
             }
-            if($Repository) {
-                $modulesLocal = foreach($psRepository in $psRepositories) { $modulesLocal | Where-Object RepositorySourceLocation -like "$($psRepository.SourceLocation)*" }
+            if ($Repository) {
+                $modulesLocal = foreach ($psRepository in $psRepositories) { $modulesLocal | Where-Object RepositorySourceLocation -like "$($psRepository.SourceLocation)*" }
             }
 
             # Get available modules from online repositories
@@ -118,12 +118,12 @@ function Get-PackageUpdateInfo {
             $findModuleParams = @{
                 Name = $modulesLocal.Name
             }
-            if($Repository) { $findModuleParams.Add("Repository", $Repository) }
-            $modulesOnline = Find-Module @findModuleParams 
+            if ($Repository) { $findModuleParams.Add("Repository", $Repository) }
+            $modulesOnline = Find-Module @findModuleParams
 
             # Compare the version and create output
             Write-Verbose "Compare the version and create output"
-            foreach ($moduleOnline in $modulesOnline) { 
+            foreach ($moduleOnline in $modulesOnline) {
                 $moduleLocal = $modulesLocal | Where-Object Name -like $moduleOnline.Name
 
                 if ($moduleOnline.version -gt $moduleLocal.version) {
@@ -139,15 +139,15 @@ function Get-PackageUpdateInfo {
                     $UpdateAvailable = $false
                 }
 
-                if($ShowOnlyNeededUpdate -and (-not $UpdateAvailable) ) { continue }
+                if ($ShowOnlyNeededUpdate -and (-not $UpdateAvailable) ) { continue }
 
                 $outputHash = [ordered]@{
-                    Name = $moduleLocal.Name
-                    Repository = ($psRepositories | Where-Object SourceLocation -like "$($moduleLocal.RepositorySourceLocation.ToString().Trim('/'))*").Name
+                    Name             = $moduleLocal.Name
+                    Repository       = ($psRepositories | Where-Object SourceLocation -like "$($moduleLocal.RepositorySourceLocation.ToString().Trim('/'))*").Name
                     VersionInstalled = $moduleLocal.version
-                    VersionOnline = $moduleOnline.version
-                    NeedUpdate = $UpdateAvailable
-                    Path = $moduleLocal.ModuleBase.Replace($moduleLocal.Version,'').trim('\')
+                    VersionOnline    = $moduleOnline.version
+                    NeedUpdate       = $UpdateAvailable
+                    Path             = $moduleLocal.ModuleBase.Replace($moduleLocal.Version, '').trim('\')
                 }
                 New-Object -TypeName PackageUpdate.Info -Property $outputHash
             }
