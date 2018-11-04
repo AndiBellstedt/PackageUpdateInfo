@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PackageUpdateInfo</name>
+    </assembly>
+    <members>
+        <member name="T:PackageUpdate.Info">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.Name">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.Repository">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.VersionInstalled">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.VersionOnline">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.NeedUpdate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.Path">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>

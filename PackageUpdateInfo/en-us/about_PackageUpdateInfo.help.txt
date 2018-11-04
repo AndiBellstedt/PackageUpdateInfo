@@ -1,0 +1,12 @@
+TOPIC
+	about_PackageUpdateInfo
+	
+SHORT DESCRIPTION
+	A short synopsis of PackageUpdateInfo
+
+LONG DESCRIPTION
+	A more detailed description of PackageUpdateInfo,
+	Should tell the user how to get started with this module.
+	
+KEYWORDS
+	module development debugging

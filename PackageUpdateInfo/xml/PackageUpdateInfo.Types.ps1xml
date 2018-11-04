@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Types>
+    <!-- Foo.Bar 
+    <Type>
+        <Name>Foo.Bar</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>FooProperty</Name>
+                <GetScriptBlock>
+                    $this.Foo
+                </GetScriptBlock>
+            </ScriptProperty>
+        </Members>
+    </Type>
+    -->
+</Types>

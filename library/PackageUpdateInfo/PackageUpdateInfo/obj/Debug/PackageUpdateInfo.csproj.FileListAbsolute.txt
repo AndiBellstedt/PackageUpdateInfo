@@ -1,0 +1,9 @@
+G:\Andreas\GitHub\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.xml
+G:\Andreas\GitHub\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.dll
+G:\Andreas\GitHub\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.pdb
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.csprojAssemblyReference.cache
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.csproj.CoreCompileInputs.cache
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.AssemblyInfoInputs.cache
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.AssemblyInfo.cs
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.dll
+G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.pdb
