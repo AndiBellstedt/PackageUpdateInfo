@@ -9,5 +9,5 @@ param (
 	$WhatIf
 )
 
-if ($WhatIf) { Publish-Module -Path "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\MSGraph" -NuGetApiKey $ApiKey -Force -WhatIf }
-else { Publish-Module -Path "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\MSGraph" -NuGetApiKey $ApiKey -Force }
+if ($WhatIf) { Publish-Module -Path "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\PackageUpdateInfo" -NuGetApiKey $ApiKey -Force -WhatIf }
+else { Publish-Module -Path "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\PackageUpdateInfo" -NuGetApiKey $ApiKey -Force }
