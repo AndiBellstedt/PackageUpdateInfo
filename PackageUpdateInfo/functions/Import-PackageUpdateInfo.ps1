@@ -55,31 +55,38 @@
         $file = Get-ChildItem -Path $Path -ErrorAction Stop
 
         if ($pscmdlet.ShouldProcess($Path, "Import PackageUpdateInfo")) {
-            if ($InputFormat -like "JSON") {
-                $records = Get-Content -Path $file -Encoding $Encoding | ConvertFrom-Json
-            }
-            elseif ($InputFormat -like "CSV") {
-                $records = Import-Csv -Path $file -Delimiter ";" -Encoding $Encoding
-            }
-            else {
-                $records = Import-Clixml -Path $file
-            }
+            if($file.Length -gt 2) {
+                Write-Verbose "Importing package update information from $($file.FullName)"
+                
+                if ($InputFormat -like "JSON") {
+                    $records = Get-Content -Path $file -Encoding $Encoding | ConvertFrom-Json -ErrorAction SilentlyContinue
+                }
+                elseif ($InputFormat -like "CSV") {
+                    $records = Import-Csv -Path $file -Delimiter ";" -Encoding $Encoding
+                }
+                else {
+                    $records = Import-Clixml -Path $file
+                }
 
-            if ($InputFormat -notlike "XML") {
-                foreach ($record in $records) {
-                    $hash = [ordered]@{
-                        Name             = $record.Name
-                        Repository       = $record.Repository
-                        VersionInstalled = [version]$record.VersionInstalled
-                        VersionOnline    = [version]$record.VersionOnline
-                        NeedUpdate       = [bool]::Parse($record.NeedUpdate)
-                        Path             = $record.Path
+                if ($InputFormat -notlike "XML") {
+                    foreach ($record in $records) {
+                        $hash = [ordered]@{
+                            Name             = $record.Name
+                            Repository       = $record.Repository
+                            VersionInstalled = [version]$record.VersionInstalled
+                            VersionOnline    = [version]$record.VersionOnline
+                            NeedUpdate       = [bool]::Parse($record.NeedUpdate)
+                            Path             = $record.Path
+                        }
+                        [PackageUpdate.Info]$hash
                     }
-                    [PackageUpdate.Info]$hash
+                }
+                else {
+                    $records
                 }
             }
             else {
-                $records
+                Write-Verbose "Nothing to import. Seems like, all is up to date."
             }
         }
     }

@@ -131,6 +131,8 @@
         else {
             $output += $InputObject
         }
+
+        if($PassThru) { $InputObject }
     }
 
     end {
@@ -159,7 +161,8 @@
             }
         }
         else {
-            Write-Warning -Message "No data were processed, nothing to output."
+            Write-Verbose -Message "No data were processed, nothing to output."
+            "" | Out-File $outputPath.Path -Encoding $Encoding
         }
     }
 }
