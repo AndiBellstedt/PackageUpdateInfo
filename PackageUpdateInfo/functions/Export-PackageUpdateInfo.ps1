@@ -133,7 +133,7 @@
             $output += $InputObject
         }
 
-        if($PassThru) { $InputObject }
+        if($PassThru) { [PackageUpdate.Info]$InputObject }
     }
 
     end {
