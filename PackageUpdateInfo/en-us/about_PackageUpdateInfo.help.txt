@@ -1,8 +1,8 @@
 ﻿TOPIC
     about_PackageUpdateInfo
-    
+
 SHORT DESCRIPTION
-    The PackageUpdatesInfo module helps you staying up to date with you installed modules. 
+    The PackageUpdatesInfo module helps you staying up to date with you installed modules.
     It checks all your local installed powershell modules and output a table with module names and version information.
 
 LONG DESCRIPTION
@@ -46,6 +46,6 @@ LONG DESCRIPTION
     The following modules and code snipets inspired me. My goal was to do a short module with rich, powershell styled output and powershell styled functionality.
     - The module is inspired by Jan De Dobbeleer: https://github.com/JanDeDobbeleer/Get-PackageUpdates
     - Inspired by and partially stolen from http://jdhitsolutions.com/blog/powershell/5441/check-for-module-updates/
-    
+
 KEYWORDS
     module development debugging
