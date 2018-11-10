@@ -47,6 +47,7 @@
     [CmdletBinding( SupportsShouldProcess = $true,
         ConfirmImpact = 'Medium')]
     [Alias('epui')]
+    [OutputType([PackageUpdate.Info])]
     Param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [PackageUpdate.Info[]]
