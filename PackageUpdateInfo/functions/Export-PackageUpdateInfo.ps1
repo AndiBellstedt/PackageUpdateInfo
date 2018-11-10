@@ -47,6 +47,7 @@
     [CmdletBinding( SupportsShouldProcess = $true,
         ConfirmImpact = 'Medium')]
     [Alias('epui')]
+    [OutputType([PackageUpdate.Info])]
     Param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [PackageUpdate.Info[]]
@@ -132,7 +133,7 @@
             $output += $InputObject
         }
 
-        if($PassThru) { $InputObject }
+        if($PassThru) { [PackageUpdate.Info]$InputObject }
     }
 
     end {
