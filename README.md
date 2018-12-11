@@ -4,11 +4,11 @@ The PackageUpdatesInfo module helps you staying up to date with you installed mo
 ## Installation
 Install the module from the PowerShell Gallery (systemwide):
 
-    Install-Module PackageUpdatesInfo
+    Install-Module PackageUpdateInfo
 
 or install it only for your user:
 
-    Install-Module PackageUpdatesInfo -Scope CurrentUser
+    Install-Module PackageUpdateInfo -Scope CurrentUser
 
 ## Interactive usage
 For interactive usage and check all your modules, just run:
