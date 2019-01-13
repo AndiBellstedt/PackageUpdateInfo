@@ -55,16 +55,14 @@
         $file = Get-ChildItem -Path $Path -ErrorAction Stop
 
         if ($pscmdlet.ShouldProcess($Path, "Import PackageUpdateInfo")) {
-            if($file.Length -gt 2) {
+            if ($file.Length -gt 2) {
                 Write-Verbose "Importing package update information from $($file.FullName)"
-                
+
                 if ($InputFormat -like "JSON") {
                     $records = Get-Content -Path $file -Encoding $Encoding | ConvertFrom-Json -ErrorAction SilentlyContinue
-                }
-                elseif ($InputFormat -like "CSV") {
+                } elseif ($InputFormat -like "CSV") {
                     $records = Import-Csv -Path $file -Delimiter ";" -Encoding $Encoding
-                }
-                else {
+                } else {
                     $records = Import-Clixml -Path $file
                 }
 
@@ -77,15 +75,18 @@
                             VersionOnline    = [version]$record.VersionOnline
                             NeedUpdate       = [bool]::Parse($record.NeedUpdate)
                             Path             = $record.Path
+                            ProjectUri       = $record.ProjectUri
+                            IconUri          = $record.IconUri
+                            ReleaseNotes     = $record.ReleaseNotes
+                            Author           = $record.Author
+                            PublishedDate    = $record.PublishedDate
                         }
                         [PackageUpdate.Info]$hash
                     }
-                }
-                else {
+                } else {
                     $records
                 }
-            }
-            else {
+            } else {
                 Write-Verbose "Nothing to import. Seems like, all is up to date."
             }
         }
