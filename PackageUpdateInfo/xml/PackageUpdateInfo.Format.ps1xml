@@ -16,6 +16,8 @@
                     <TableColumnHeader/>
                     <TableColumnHeader/>
                     <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
                 </TableHeaders>
                 <TableRowEntries>
                     <TableRowEntry>
@@ -34,6 +36,12 @@
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>NeedUpdate</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>HasReleaseNotes</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>PublishedDate</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>Path</PropertyName>

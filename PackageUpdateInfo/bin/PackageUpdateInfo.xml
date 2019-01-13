@@ -39,5 +39,35 @@
             
             </summary>
         </member>
+        <member name="F:PackageUpdate.Info.ProjectUri">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.IconUri">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.ReleaseNotes">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:PackageUpdate.Info.HasReleaseNotes">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.Author">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.PublishedDate">
+            <summary>
+            
+            </summary>
+        </member>
     </members>
 </doc>

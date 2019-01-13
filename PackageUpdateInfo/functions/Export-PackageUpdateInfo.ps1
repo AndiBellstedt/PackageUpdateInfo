@@ -86,8 +86,7 @@
             # If file is present, resolve the path
             if (Test-Path -Path $Path -PathType Leaf) {
                 $outputPath = Resolve-Path -Path $Path
-            }
-            else {
+            } else {
                 # If Force switch is specified and the path does not exists
                 if ($Force -and (-not (Resolve-Path -Path (Split-Path $Path))) ) {
                     New-Item -ItemType Directory -Path (Split-Path $Path) -ErrorAction Stop
@@ -100,8 +99,7 @@
         # If directory is specified as path
         elseif (Test-Path -Path $Path -PathType Container) {
             Write-Error -Message "Specified Path is a directory. Please specify an file." -ErrorAction Stop
-        }
-        else {
+        } else {
             Write-Error -Message "Specified Path is an invalid directory. Please specify an valid file as output path." -ErrorAction Stop
         }
 
@@ -122,18 +120,22 @@
                     VersionOnline    = $object.VersionOnline.ToString()
                     NeedUpdate       = $object.NeedUpdate
                     Path             = $object.Path
+                    ProjectUri       = $object.ProjectUri
+                    IconUri          = $object.IconUri
+                    ReleaseNotes     = $object.ReleaseNotes
+                    Author           = $object.Author
+                    PublishedDate    = $object.PublishedDate
                 }
                 if ($IncludeTimeStamp) {
                     $hash.add("TimeStamp", $object.TimeStamp)
                 }
                 New-Object -TypeName psobject -Property $hash
             }
-        }
-        else {
+        } else {
             $output += $InputObject
         }
 
-        if($PassThru) { [PackageUpdate.Info]$InputObject }
+        if ($PassThru) { [PackageUpdate.Info]$InputObject }
     }
 
     end {
@@ -147,21 +149,18 @@
                 if ($OutputFormat -in "JSON") {
                     $outFileParams.Add("FilePath", $outputPath.Path)
                     $output | ConvertTo-Json | Out-File @outFileParams
-                }
-                elseif ($OutputFormat -in "CSV") {
+                } elseif ($OutputFormat -in "CSV") {
                     $outFileParams.Add("Path", $outputPath.Path)
                     $outFileParams.Add("Delimiter", ';')
                     $outFileParams.Add("NoTypeInformation", $true)
                     $output | Export-Csv @outFileParams
-                }
-                else {
+                } else {
                     $Exportdata = if ($Append -and ((Get-ChildItem -Path $outputPath.Path).Length -gt 0) ) { Import-Clixml -Path $outputPath.Path -ErrorAction SilentlyContinue } else { @() }
                     $Exportdata += $output
                     $Exportdata | Export-Clixml -Path $outputPath.Path -Encoding $Encoding
                 }
             }
-        }
-        else {
+        } else {
             Write-Verbose -Message "No data were processed, nothing to output."
             "" | Out-File $outputPath.Path -Encoding $Encoding
         }

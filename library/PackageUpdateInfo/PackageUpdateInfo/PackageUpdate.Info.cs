@@ -37,5 +37,39 @@ namespace PackageUpdate
         /// 
         /// </summary>
         public string Path;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Uri ProjectUri;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Uri IconUri;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReleaseNotes;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool HasReleaseNotes {
+            get {
+                if(String.IsNullOrEmpty(ReleaseNotes)) { return false; } else { return true; }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Author;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime PublishedDate;
     }
 }

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Types>
-    <!-- Foo.Bar 
+    <!--
     <Type>
-        <Name>Foo.Bar</Name>
+        <Name>PackageUpdate.Info</Name>
         <Members>
             <ScriptProperty>
-                <Name>FooProperty</Name>
+                <Name>Foo</Name>
                 <GetScriptBlock>
-                    $this.Foo
+                    "Foo"
                 </GetScriptBlock>
             </ScriptProperty>
         </Members>

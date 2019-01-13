@@ -99,7 +99,7 @@
                 Name          = $nameItem
                 Verbose       = $false
             }
-            $modulesLocal = Get-Module @getModuleParams | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0]}
+            $modulesLocal = Get-Module @getModuleParams | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0] }
 
             # Filtering out if switches are specified
             Write-Verbose "Do the filtering..."
@@ -129,12 +129,10 @@
                 if ($moduleOnline.version -gt $moduleLocal.version) {
                     Write-Verbose "Update available for module '$($moduleOnline.Name)' - Version $($moduleLocal.version) --> $($moduleOnline.version)"
                     $UpdateAvailable = $true
-                }
-                elseif ($moduleOnline.version -lt $moduleLocal.version) {
+                } elseif ($moduleOnline.version -lt $moduleLocal.version) {
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version - Local version: $($moduleLocal.version) | online version: $($moduleOnline.version)"
                     $UpdateAvailable = $false
-                }
-                else {
+                } else {
                     Write-Verbose "The module '$($moduleOnline.Name)' is up to date (Version $($moduleLocal.version))"
                     $UpdateAvailable = $false
                 }
@@ -148,6 +146,11 @@
                     VersionOnline    = $moduleOnline.version
                     NeedUpdate       = $UpdateAvailable
                     Path             = $moduleLocal.ModuleBase.Replace($moduleLocal.Version, '').trim('\')
+                    ProjectUri       = $modulesOnline.ProjectUri
+                    IconUri          = $modulesOnline.IconUri
+                    ReleaseNotes     = $modulesOnline.ReleaseNotes
+                    Author           = $modulesOnline.Author
+                    PublishedDate    = $modulesOnline.PublishedDate
                 }
                 New-Object -TypeName PackageUpdate.Info -Property $outputHash
             }
