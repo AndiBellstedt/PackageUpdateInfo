@@ -125,6 +125,7 @@
                     ReleaseNotes     = $object.ReleaseNotes
                     Author           = $object.Author
                     PublishedDate    = $object.PublishedDate
+                    Description      = $object.Description
                 }
                 if ($IncludeTimeStamp) {
                     $hash.add("TimeStamp", $object.TimeStamp)

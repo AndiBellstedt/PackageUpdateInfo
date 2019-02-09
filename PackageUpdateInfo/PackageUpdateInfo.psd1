@@ -3,7 +3,7 @@
     ModuleToProcess = 'PackageUpdateInfo.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.2.0'
+    ModuleVersion = '1.1.0.0'
 
     # ID used to uniquely identify this module
     GUID = '1f216c97-d110-4d88-bc30-ec850757a256'
@@ -24,14 +24,16 @@
     PowerShellVersion = '5.0'
 
     # Modules that must be imported into the global environment prior to importing this module
-    # RequiredModules = @(@{ ModuleName='PSFramework'; ModuleVersion='0.9.25.113' })
+    RequiredModules = @(
+        @{ ModuleName='BurntToast'; ModuleVersion='0.6.3' }
+    )
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @('bin\PackageUpdateInfo.dll')
 
     # Type files (.ps1xml) to be loaded when importing this module
     # Expensive for import time, no more than one should be used.
-    # TypesToProcess = @('xml\PackageUpdateInfo.Types.ps1xml')
+    TypesToProcess = @('xml\PackageUpdateInfo.Types.ps1xml')
 
     # Format files (.ps1xml) to be loaded when importing this module.
     # Expensive for import time, no more than one should be used.
@@ -76,10 +78,10 @@
             ProjectUri = 'https://github.com/AndiBellstedt/PackageUpdateInfo'
 
             # A URL to an icon representing this module.
-            # IconUri = ''
+            IconUri = 'https://github.com/AndiBellstedt/PackageUpdateInfo/raw/Development/assets/PackageUpdateInfo_128x128.png'
 
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes = 'https://github.com/AndiBellstedt/PackageUpdateInfo/blob/master/PackageUpdateInfo/changelog.md'
 
         } # End of PSData hashtable
 

@@ -59,12 +59,22 @@
             
             </summary>
         </member>
+        <member name="P:PackageUpdate.Info.ReleaseNotesIsUri">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="F:PackageUpdate.Info.Author">
             <summary>
             
             </summary>
         </member>
         <member name="F:PackageUpdate.Info.PublishedDate">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Info.Description">
             <summary>
             
             </summary>
