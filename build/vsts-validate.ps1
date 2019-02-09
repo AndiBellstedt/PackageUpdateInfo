@@ -5,8 +5,7 @@
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
 $requiredModules = (Import-PowerShellDataFile -Path "$($PSScriptRoot)\..\PackageUpdateInfo\PackageUpdateInfo.psd1").RequiredModules
-Write-Verbose $requiredModules -Verbose
-Find-Module -Name "BurntToast" -MinimumVersion '0.6.3' | Install-Module -Scope CurrentUser -Force -Confirm:$false
+Find-Module -Name "BurntToast" -MinimumVersion '0.6.3' | Install-Module -Scope CurrentUser -Force -Confirm:$false -Verbose
 
 # Run internal pester tests
 & "$PSScriptRoot\..\PackageUpdateInfo\tests\pester.ps1"
