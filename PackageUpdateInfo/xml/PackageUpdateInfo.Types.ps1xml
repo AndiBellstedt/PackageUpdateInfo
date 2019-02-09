@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Types>
-    <!--
+
     <Type>
         <Name>PackageUpdate.Info</Name>
         <Members>
             <ScriptProperty>
-                <Name>Foo</Name>
+                <Name>IsCurrentUserPath</Name>
                 <GetScriptBlock>
-                    "Foo"
+                    (Split-Path -Path $this.Path -Parent) -in $script:CurrentUserModulePath
                 </GetScriptBlock>
             </ScriptProperty>
         </Members>
     </Type>
-    -->
+
 </Types>

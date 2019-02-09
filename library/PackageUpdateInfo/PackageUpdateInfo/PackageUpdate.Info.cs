@@ -16,13 +16,13 @@ namespace PackageUpdate
         /// 
         /// </summary>
         public string Repository;
-        
+
 
         /// <summary>
         /// 
         /// </summary>
         public Version VersionInstalled;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -58,7 +58,29 @@ namespace PackageUpdate
         /// </summary>
         public bool HasReleaseNotes {
             get {
-                if(String.IsNullOrEmpty(ReleaseNotes)) { return false; } else { return true; }
+                if (String.IsNullOrEmpty(ReleaseNotes)) { return false; } else { return true; }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool ReleaseNotesIsUri {
+            get {
+                if (HasReleaseNotes)
+                {
+                    try
+                    {
+                        Uri urlCheck = new Uri(ReleaseNotes);
+                        return true;
+                    } catch (Exception)
+                    {
+                        return false; //could not parse ReleaseNotes to URI
+                    }
+                } else
+                {
+                    return false;
+                }
             }
         }
 
@@ -71,5 +93,10 @@ namespace PackageUpdate
         /// 
         /// </summary>
         public DateTime PublishedDate;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description;
     }
 }

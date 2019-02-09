@@ -14,7 +14,9 @@
 
     .PARAMETER ShowOnlyNeededUpdate
         This switch suppresses up-to-date modules from the output.
-        Only output modules needed to update.
+
+    .PARAMETER ShowToastNotification
+        This switch invokes nice Windows-Toast-Notifications with release note information on modules with update needed.
 
     .PARAMETER CurrentUser
         Only look for modules in the current user profile.
@@ -71,6 +73,10 @@
         [switch]
         $ShowOnlyNeededUpdate,
 
+        [switch]
+        [Alias('ToastNotification', 'Notify')]
+        $ShowToastNotification,
+
         [Parameter(ParameterSetName = 'CurrentUser')]
         [switch]
         $CurrentUser,
@@ -81,8 +87,8 @@
     )
 
     begin {
-        $currentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
-        $allUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
+        #$currentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
+        #$allUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
 
         $getPSRepositoryParams = @{}
         if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
@@ -104,10 +110,10 @@
             # Filtering out if switches are specified
             Write-Verbose "Do the filtering..."
             if ($CurrentUser) {
-                $modulesLocal = foreach ($path in $currentUserModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
+                $modulesLocal = foreach ($path in $CurrentUserModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
             }
             if ($AllUsers) {
-                $modulesLocal = foreach ($path in $allUsersModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
+                $modulesLocal = foreach ($path in $AllUsersModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
             }
             if ($Repository) {
                 $modulesLocal = foreach ($psRepository in $psRepositories) { $modulesLocal | Where-Object RepositorySourceLocation -like "$($psRepository.SourceLocation)*" }
@@ -127,17 +133,17 @@
                 $moduleLocal = $modulesLocal | Where-Object Name -like $moduleOnline.Name
 
                 if ($moduleOnline.version -gt $moduleLocal.version) {
-                    Write-Verbose "Update available for module '$($moduleOnline.Name)' - Version $($moduleLocal.version) --> $($moduleOnline.version)"
+                    Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
                     $UpdateAvailable = $true
                 } elseif ($moduleOnline.version -lt $moduleLocal.version) {
-                    Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version - Local version: $($moduleLocal.version) | online version: $($moduleOnline.version)"
+                    Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false
                 } else {
                     Write-Verbose "The module '$($moduleOnline.Name)' is up to date (Version $($moduleLocal.version))"
                     $UpdateAvailable = $false
                 }
 
-                if ($ShowOnlyNeededUpdate -and (-not $UpdateAvailable) ) { continue }
+                if ($ShowOnlyNeededUpdate -and (-not $UpdateAvailable)) { continue }
 
                 $outputHash = [ordered]@{
                     Name             = $moduleLocal.Name
@@ -146,13 +152,18 @@
                     VersionOnline    = $moduleOnline.version
                     NeedUpdate       = $UpdateAvailable
                     Path             = $moduleLocal.ModuleBase.Replace($moduleLocal.Version, '').trim('\')
-                    ProjectUri       = $modulesOnline.ProjectUri
-                    IconUri          = $modulesOnline.IconUri
-                    ReleaseNotes     = $modulesOnline.ReleaseNotes
-                    Author           = $modulesOnline.Author
-                    PublishedDate    = $modulesOnline.PublishedDate
+                    ProjectUri       = $moduleOnline.ProjectUri
+                    IconUri          = $moduleOnline.IconUri
+                    ReleaseNotes     = $moduleOnline.ReleaseNotes
+                    Author           = $moduleOnline.Author
+                    PublishedDate    = $moduleOnline.PublishedDate
+                    Description      = $moduleOnline.Description
                 }
-                New-Object -TypeName PackageUpdate.Info -Property $outputHash
+                $PackageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
+
+                if ($ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
+
+                $PackageUpdateInfo
             }
         }
     }

@@ -10,6 +10,9 @@
         The filepath where to import the informations.
         Please specify a file as path.
 
+    .PARAMETER ShowToastNotification
+        This switch invokes nice Windows-Toast-Notifications with release note information on modules with update needed.
+
     .PARAMETER InputFormat
         The output format for the data
         Available formats are "XML","JSON","CSV"
@@ -37,6 +40,10 @@
         [Alias("FullName", "FilePath")]
         [String]
         $Path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml"),
+
+        [switch]
+        [Alias('ToastNotification', 'Notify')]
+        $ShowToastNotification,
 
         [ValidateSet("XML", "JSON", "CSV")]
         [Alias("Format")]
@@ -66,25 +73,24 @@
                     $records = Import-Clixml -Path $file
                 }
 
-                if ($InputFormat -notlike "XML") {
-                    foreach ($record in $records) {
-                        $hash = [ordered]@{
-                            Name             = $record.Name
-                            Repository       = $record.Repository
-                            VersionInstalled = [version]$record.VersionInstalled
-                            VersionOnline    = [version]$record.VersionOnline
-                            NeedUpdate       = [bool]::Parse($record.NeedUpdate)
-                            Path             = $record.Path
-                            ProjectUri       = $record.ProjectUri
-                            IconUri          = $record.IconUri
-                            ReleaseNotes     = $record.ReleaseNotes
-                            Author           = $record.Author
-                            PublishedDate    = $record.PublishedDate
-                        }
-                        [PackageUpdate.Info]$hash
+                foreach ($record in $records) {
+                    $hash = [ordered]@{
+                        Name             = $record.Name
+                        Repository       = $record.Repository
+                        VersionInstalled = [version]$record.VersionInstalled
+                        VersionOnline    = [version]$record.VersionOnline
+                        NeedUpdate       = [bool]::Parse($record.NeedUpdate)
+                        Path             = $record.Path
+                        ProjectUri       = $record.ProjectUri
+                        IconUri          = $record.IconUri
+                        ReleaseNotes     = $record.ReleaseNotes
+                        Author           = $record.Author
+                        PublishedDate    = $record.PublishedDate
+                        Description      = $record.Description
                     }
-                } else {
-                    $records
+                    $PackageUpdateInfo = [PackageUpdate.Info]$hash
+                    if ($ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
+                    $PackageUpdateInfo
                 }
             } else {
                 Write-Verbose "Nothing to import. Seems like, all is up to date."
