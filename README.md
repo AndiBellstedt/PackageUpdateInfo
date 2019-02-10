@@ -2,14 +2,17 @@
 PackageUpdatesInfo - Stay up to date with modules
 ====================
 
-# Description
+## Description
 
 The PackageUpdatesInfo module helps you staying up to date with you installed modules. It checks all your local installed powershell modules and output a table with module names and version information.
+<br><br>
 
 ## Prerequisites
 
 - PowerShell 5
 - PowerShell Module: BurntToast
+<br><br>
+
 
 ## Installation
 
@@ -20,6 +23,7 @@ Install the module from the PowerShell Gallery (systemwide):
 or install it only for your user:
 
     Install-Module PackageUpdateInfo -Scope CurrentUser
+
 
 ## Interactive usage
 For interactive usage and check all your modules, just run:
@@ -46,6 +50,7 @@ I'll suggest to put these lines to you PowerShell profile:
     Import-PackageUpdateInfo
 
 This will start the update checking as a background job and show's you quickly the information from the last job run on every startup of the powershell.
+<br><br>
 
 ## References
 The following modules and code snipets inspired me. My goal was to do a short module with rich, powershell styled output and powershell styled functionality.
