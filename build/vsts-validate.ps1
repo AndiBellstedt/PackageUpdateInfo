@@ -5,7 +5,7 @@
 
 # Check requirements for other modules and install them first
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-$requiredModules = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\PackageUpdateInfo.psd1").RequiredModules
+$requiredModules = (Import-PowerShellDataFile -Path "$PSScriptRoot\..\PackageUpdateInfo\PackageUpdateInfo.psd1").RequiredModules
 foreach ($requiredModule in $requiredModules) {
     $moduleParams = @{
         Name = $requiredModule['ModuleName']
