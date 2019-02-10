@@ -1,5 +1,5 @@
 ﻿![logo][]
-PackageUpdatesInfo - Stay up to date with your modules
+PackageUpdatesInfo - Stay up to date with modules
 ====================
 
 # Description
