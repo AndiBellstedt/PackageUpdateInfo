@@ -1,4 +1,8 @@
 # Changelog
+# 1.1.1.0
+- Fix: Command Get-PackageUpdateInfo
+    - Fix Issure #11 - error on command, when more than 63 modules are installed. The command Find-Module only accept a maximum number of 63 strings in Name command. Workarround with a fearch-each loop arround this one
+
 # 1.1.0.0
 - New: command Get-PackageUpdateInfo
     - Possibility to push ToastNotification for update infos with BurnToast module by specifing '-ShowToastNotification' switch

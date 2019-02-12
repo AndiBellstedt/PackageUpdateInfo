@@ -3,7 +3,7 @@
     ModuleToProcess = 'PackageUpdateInfo.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.1.0.0'
+    ModuleVersion = '1.1.1.0'
 
     # ID used to uniquely identify this module
     GUID = '1f216c97-d110-4d88-bc30-ec850757a256'
