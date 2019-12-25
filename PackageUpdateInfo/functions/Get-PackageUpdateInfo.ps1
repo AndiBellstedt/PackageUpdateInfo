@@ -87,10 +87,11 @@
     )
 
     begin {
-        #$currentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
-        #$allUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
+        if($ShowToastNotification -and (-not $script:EnableToastNotification)) {
+            Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
+        }
 
-        $getPSRepositoryParams = @{}
+        $getPSRepositoryParams = @{ }
         if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
         $psRepositories = Get-PSRepository @getPSRepositoryParams -ErrorAction Stop
     }
@@ -163,7 +164,9 @@
                 }
                 $PackageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
 
-                if ($ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
+                if ($script:EnableToastNotification -and $ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) {
+                    Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo
+                }
 
                 $PackageUpdateInfo
             }

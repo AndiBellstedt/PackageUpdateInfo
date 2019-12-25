@@ -44,7 +44,16 @@
 
         # the logo
         if ($PackageUpdateInfo.IconUri) {
-            $toastLogo = $PackageUpdateInfo.IconUri.ToString()
+            $iconPath = Join-Path -Path $script:ModuleTempPath -ChildPath $PackageUpdateInfo.IconUri.Segments[-1]
+            if (Test-Path -Path $iconPath) { Remove-Item -Path $iconPath -Force -ErrorAction:SilentlyContinue }
+
+            try {
+                Invoke-WebRequest -Uri $PackageUpdateInfo.IconUri -OutFile $iconPath -SkipCertificateCheck -SkipHeaderValidation -ErrorAction Stop
+                $toastLogo = $iconPath
+            } catch {
+                Write-Verbose -Message "Warning! Unable to get icon from '$($PackageUpdateInfo.IconUri)' for module '$($PackageUpdateInfo.Name)'"
+                $toastLogo = $script:ModuleIconPath
+            }
         } else {
             $toastLogo = $script:ModuleIconPath
         }

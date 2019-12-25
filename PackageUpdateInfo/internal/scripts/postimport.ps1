@@ -1,7 +1,11 @@
 ﻿# Place all code that should be run after functions are imported here
 
-$script:ModuleIconPath = "$($script:ModuleRoot)\bin\PackageUpdateInfo.png"
-$script:ModuleTempPath = "$env:TEMP\PackageUpdateInfo"
+$script:ModuleIconPath = Join-Path -Path $script:ModuleRoot -ChildPath "\bin\PackageUpdateInfo.png"
+if($isLinux) {
+    $script:ModuleTempPath = Join-Path "/tmp" "PackageUpdateInfo"
+} else {
+    $script:ModuleTempPath = Join-Path -Path $env:TEMP  -ChildPath "PackageUpdateInfo"
+}
 $script:CurrentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
 $script:AllUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
 

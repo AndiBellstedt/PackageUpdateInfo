@@ -10,6 +10,10 @@
         The filepath where to import the informations.
         Please specify a file as path.
 
+        Default path value is:
+        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+
     .PARAMETER ShowToastNotification
         This switch invokes nice Windows-Toast-Notifications with release note information on modules with update needed.
 
@@ -39,7 +43,7 @@
         [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias("FullName", "FilePath")]
         [String]
-        $Path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml"),
+        $Path,
 
         [switch]
         [Alias('ToastNotification', 'Notify')]
@@ -56,6 +60,18 @@
     )
 
     begin {
+        if($ShowToastNotification -and (-not $script:EnableToastNotification)) {
+            Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
+        }
+
+        # Set path variable to default value, when not specified
+        if(-not $path) {
+            if($IsLinux) {
+                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+            } else {
+                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+            }
+        }
     }
 
     process {
@@ -89,7 +105,7 @@
                         Description      = $record.Description
                     }
                     $PackageUpdateInfo = [PackageUpdate.Info]$hash
-                    if ($ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
+                    if ($script:EnableToastNotification -and $ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
                     $PackageUpdateInfo
                 }
             } else {

@@ -3,7 +3,7 @@
     ModuleToProcess = 'PackageUpdateInfo.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.1.1.0'
+    ModuleVersion = '1.2.0.0'
 
     # ID used to uniquely identify this module
     GUID = '1f216c97-d110-4d88-bc30-ec850757a256'
@@ -12,7 +12,7 @@
     Author = 'Andreas Bellstedt'
 
     # Company or vendor of this module
-    CompanyName = ' '
+    # CompanyName = ''
 
     # Copyright statement for this module
     Copyright = 'Copyright (c) 2018 Andreas Bellstedt'
@@ -23,9 +23,12 @@
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.0'
 
+    # Which PowerShell Editions does this module work with? (Core, Desktop)
+    CompatiblePSEditions = @('Desktop', 'Core')
+
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(
-        @{ ModuleName='BurntToast'; ModuleVersion='0.6.3' }
+        #@{ ModuleName='BurntToast'; ModuleVersion='0.6.3' }
     )
 
     # Assemblies that must be loaded prior to importing this module
@@ -86,4 +89,7 @@
         } # End of PSData hashtable
 
     } # End of PrivateData hashtable
+
+    # If your module supports updateable help, what is the URI to the help archive? (optional)
+    # HelpInfoURI = ''
 }
