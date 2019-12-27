@@ -1,4 +1,12 @@
 # Changelog
+# 1.2.0.0
+- New: Enabling CORE and cross-platform compatibility
+    - Doing code refactoring to bring PackageUpdateInfo into PowerShell version 6 & 7 (CORE)
+    - Module now also runs on linux systems
+- Upd: Remove dependency on module BurntToast
+    - For now, BurntToast is a optional module in PackageUpdateInfo
+    - Toast notifications are available on Windows 10 in 'Windows PowerShell' and 'PowerShell' (Core)
+
 # 1.1.1.0
 - Fix: Command Get-PackageUpdateInfo
     - Fix Issure #11 - error on command, when more than 63 modules are installed. The command Find-Module only accept a maximum number of 63 strings in Name command. Workarround with a fearch-each loop arround this one

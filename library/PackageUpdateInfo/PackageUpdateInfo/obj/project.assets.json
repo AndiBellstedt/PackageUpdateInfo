@@ -12,13 +12,13 @@
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "restore": {
-      "projectUniqueName": "G:\\Andreas\\GitHub\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\PackageUpdateInfo.csproj",
+      "projectUniqueName": "C:\\Users\\andre\\Development\\Modules_ABe\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\PackageUpdateInfo.csproj",
       "projectName": "PackageUpdateInfo",
-      "projectPath": "G:\\Andreas\\GitHub\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\PackageUpdateInfo.csproj",
+      "projectPath": "C:\\Users\\andre\\Development\\Modules_ABe\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\PackageUpdateInfo.csproj",
       "packagesPath": "C:\\Users\\andre\\.nuget\\packages\\",
-      "outputPath": "G:\\Andreas\\GitHub\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\obj\\",
+      "outputPath": "C:\\Users\\andre\\Development\\Modules_ABe\\PackageUpdateInfo\\library\\PackageUpdateInfo\\PackageUpdateInfo\\obj\\",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "fallbackFolders": [

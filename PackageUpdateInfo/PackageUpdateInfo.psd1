@@ -46,7 +46,8 @@
     FunctionsToExport = @(
         'Get-PackageUpdateInfo',
         'Export-PackageUpdateInfo',
-        'Import-PackageUpdateInfo'
+        'Import-PackageUpdateInfo',
+        'Show-PackageUpdateReleaseNote'
     )
 
     # Cmdlets to export from this module
@@ -59,7 +60,8 @@
     AliasesToExport = @(
         'gpui',
         'epui',
-        'ipui'
+        'ipui',
+        'spurn'
     )
 
     # List of all files packaged with this module

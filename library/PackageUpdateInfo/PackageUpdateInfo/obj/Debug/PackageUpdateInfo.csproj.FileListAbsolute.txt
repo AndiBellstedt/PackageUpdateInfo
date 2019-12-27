@@ -7,3 +7,12 @@ G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\
 G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.AssemblyInfo.cs
 G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.dll
 G:\Andreas\GitHub\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.pdb
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.xml
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.dll
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\PackageUpdateInfo\bin\PackageUpdateInfo.pdb
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.csproj.CoreCompileInputs.cache
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.AssemblyInfoInputs.cache
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.AssemblyInfo.cs
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.dll
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.pdb
+C:\Users\andre\Development\Modules_ABe\PackageUpdateInfo\library\PackageUpdateInfo\PackageUpdateInfo\obj\Debug\PackageUpdateInfo.csprojAssemblyReference.cache

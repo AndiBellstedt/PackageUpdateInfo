@@ -79,5 +79,40 @@
             
             </summary>
         </member>
+        <member name="T:PackageUpdate.ReleaseNote">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.ReleaseNote.Name">
+            <summary>
+             ModuleName
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.ReleaseNote.Version">
+            <summary>
+            Version of the module
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.ReleaseNote.ReleaseNotes">
+            <summary>
+            Release note information from the module
+            </summary>
+        </member>
+        <member name="P:PackageUpdate.ReleaseNote.ReleaseNotesIsURI">
+            <summary>
+            Boolean that indicates, wether the information in the release notes is a valid url
+            </summary>
+        </member>
+        <member name="P:PackageUpdate.ReleaseNote.ReleaseNotesURI">
+            <summary>
+            URI object from the release notes
+            </summary>
+        </member>
+        <member name="P:PackageUpdate.ReleaseNote.Notes">
+            <summary>
+            plain text release note information for the module
+            </summary>
+        </member>
     </members>
 </doc>
