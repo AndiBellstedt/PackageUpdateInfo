@@ -168,4 +168,59 @@ namespace PackageUpdate {
 
         private string _notes;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Configuration {
+        /// <summary>
+        /// ModuleNames to exclude from update checking
+        /// </summary>
+        public string[] ExcludeModuleFromChecking;
+
+        /// <summary>
+        /// ModuleNames to include from update checking
+        /// </summary>
+        public string[] IncludeModuleForChecking;
+
+        /// <summary>
+        /// Report when major version changed for a module
+        /// </summary>
+        public bool ReportChangeOnMajor;
+
+        /// <summary>
+        /// Report when minor version changed for a module
+        /// </summary>
+        public bool ReportChangeOnMinor;
+
+        /// <summary>
+        /// Report when build version changed for a module
+        /// </summary>
+        public bool ReportChangeOnBuild;
+
+        /// <summary>
+        /// Report when revision part changed for a module
+        /// </summary>
+        public bool ReportChangeOnRevision;
+
+        /// <summary>
+        /// The minimum interval/timespan has to gone by,for doing a new module update check
+        /// </summary>
+        public TimeSpan UpdateCheckInterval;
+
+        /// <summary>
+        /// Timestamp when last check for update need on modules started
+        /// </summary>
+        public DateTime LastCheck;
+
+        /// <summary>
+        /// Timestamp when last check for update need finished
+        /// </summary>
+        public DateTime LastSuccessfulCheck;
+
+        /// <summary>
+        /// The filepath where to setting file is stored
+        /// </summary>
+        public string Path;
+    }
 }

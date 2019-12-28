@@ -114,5 +114,60 @@
             plain text release note information for the module
             </summary>
         </member>
+        <member name="T:PackageUpdate.Configuration">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.ExcludeModuleFromChecking">
+            <summary>
+            ModuleNames to exclude from update checking
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.IncludeModuleForChecking">
+            <summary>
+            ModuleNames to include from update checking
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.ReportChangeOnMajor">
+            <summary>
+            Report when major version changed for a module
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.ReportChangeOnMinor">
+            <summary>
+            Report when minor version changed for a module
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.ReportChangeOnBuild">
+            <summary>
+            Report when build version changed for a module
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.ReportChangeOnRevision">
+            <summary>
+            Report when revision part changed for a module
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.UpdateCheckInterval">
+            <summary>
+            The minimum interval/timespan has to gone by,for doing a new module update check
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.LastCheck">
+            <summary>
+            Timestamp when last check for update need on modules started
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.LastSuccessfulCheck">
+            <summary>
+            Timestamp when last check for update need finished
+            </summary>
+        </member>
+        <member name="F:PackageUpdate.Configuration.Path">
+            <summary>
+            The filepath where to setting file is stored
+            </summary>
+        </member>
     </members>
 </doc>

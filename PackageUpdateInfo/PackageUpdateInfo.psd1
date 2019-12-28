@@ -47,7 +47,9 @@
         'Get-PackageUpdateInfo',
         'Export-PackageUpdateInfo',
         'Import-PackageUpdateInfo',
-        'Show-PackageUpdateReleaseNote'
+        'Show-PackageUpdateReleaseNote',
+        'Get-PackageUpdateSetting',
+        'Set-PackageUpdateSetting'
     )
 
     # Cmdlets to export from this module
@@ -61,7 +63,9 @@
         'gpui',
         'epui',
         'ipui',
-        'spurn'
+        'spurn',
+        'gpus',
+        'spus'
     )
 
     # List of all files packaged with this module
