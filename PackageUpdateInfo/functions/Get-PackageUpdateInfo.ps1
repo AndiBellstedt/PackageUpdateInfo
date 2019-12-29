@@ -94,20 +94,20 @@
     )
 
     begin {
-        if($ShowToastNotification -and (-not $script:EnableToastNotification)) {
+        if ($ShowToastNotification -and (-not $script:EnableToastNotification)) {
             Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
         }
 
         # Doing checks if the update check against the modules is done
         $moduleSetting = Get-PackageUpdateSetting
-        if(-not $Force) {
-            if($moduleSetting.LastCheck -gt $moduleSetting.LastSuccessfulCheck) {
+        if (-not $Force) {
+            if ($moduleSetting.LastCheck -gt $moduleSetting.LastSuccessfulCheck) {
                 $effectiveCheckDate = $moduleSetting.LastCheck
             } else {
                 $effectiveCheckDate = $moduleSetting.LastSuccessfulCheck
             }
 
-            if( ($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date) ) {
+            if ( ($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date) ) {
                 Write-Warning -Message "Skip checking for updates on modules, due to last check happens at $($effectiveCheckDate.ToShortTimeString()) and minimum UpdateCheckInterval is set to $($moduleSetting.UpdateCheckInterval)"
                 break
             }
@@ -150,7 +150,7 @@
             # Get available modules from online repositories
             Write-Verbose "Get available modules from online repositories"
             $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $findModuleParams = @{}
+                $findModuleParams = @{ }
                 $findModuleParams["Name"] = $moduleLocalName
                 if ($Repository) { $findModuleParams["Repository"] = $Repository }
                 Find-Module @findModuleParams
@@ -163,7 +163,8 @@
 
                 if ($moduleOnline.version -gt $moduleLocal.version) {
                     Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
-                    $UpdateAvailable = $true
+                    $UpdateAvailable = Test-UpdateIsNeeded -ModuleLocal $moduleLocal -ModuleOnline $moduleOnline
+                    #$UpdateAvailable = $true
                 } elseif ($moduleOnline.version -lt $moduleLocal.version) {
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false

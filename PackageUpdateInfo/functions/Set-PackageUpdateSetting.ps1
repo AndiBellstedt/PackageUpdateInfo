@@ -1,10 +1,10 @@
 ﻿function Set-PackageUpdateSetting {
     <#
     .SYNOPSIS
-        Get info about up-to-dateness for installed modules
+        Set behaviour settings for PackageUpdateInfo module
 
     .DESCRIPTION
-        Get-PackageUpdateInfo query locally installed modules and compare them against the online versions for up-to-dateness
+        Set-PackageUpdateInfo configure basic settings for check and report on up-to-dateness information on installed modules
 
     .PARAMETER Path
         The filepath where to setting file is stored
@@ -17,16 +17,16 @@
         Settings object parsed in from command Get-PackageUpdateSetting
 
     .PARAMETER ExcludeModuleFromChecking
-        ModuleNames to exclude from update checking
+        ModuleNames to exclude from update checking in the default rule
 
     .PARAMETER IncludeModuleForChecking
-        ModuleNames to include from update checking
+        ModuleNames to include from update checking in the default rule
         By default all modules are included.
 
         Default value is: "*"
 
     .PARAMETER ReportChangeOnMajor
-        Report when major version changed for a module
+        Report when major version changed for a module in the default rule
 
         This means 'Get-PackageUpdateSetting' report update need,
         only when the major version version of a module change.
@@ -36,7 +36,7 @@
         1      0      0     0
 
     .PARAMETER ReportChangeOnMinor
-        Report when minor version changed for a module
+        Report when minor version changed for a module in the default rule
 
         This means 'Get-PackageUpdateSetting' report update need,
         only when the minor version version of a module change.
@@ -46,7 +46,7 @@
         0      1      0     0
 
     .PARAMETER ReportChangeOnBuild
-        Report when build version changed for a module
+        Report when build version changed for a module in the default rule
 
         This means 'Get-PackageUpdateSetting' report update need,
         when the build version version of a module change.
@@ -56,7 +56,7 @@
         0      0      1     0
 
     .PARAMETER ReportChangeOnRevision
-        Report when revision part changed for a module
+        Report when revision part changed for a module in the default rule
 
         This means 'Get-PackageUpdateSetting' report update need,
         when the revision version version of a module change.
@@ -168,22 +168,25 @@
             if ($pscmdlet.ShouldProcess($path, "Reset PackageUpdateInfo behaviour")) {
                 # Initialize default preferences
                 $defaultSetting = [PackageUpdate.Configuration]@{
-                    ExcludeModuleFromChecking = @("")
-                    IncludeModuleForChecking  = @("*")
-                    ReportChangeOnMajor       = $true
-                    ReportChangeOnMinor       = $true
-                    ReportChangeOnBuild       = $true
-                    ReportChangeOnRevision    = $true
-                    UpdateCheckInterval       = "01:00:00"
-                    LastCheck                 = [string][datetime]::MinValue
-                    LastSuccessfulCheck       = [string][datetime]::MinValue
-                    Path                      = $Path
+                    CustomRule          = @()
+                    DefaultRule         = [PackageUpdate.ModuleRule]@{
+                        ExcludeModuleFromChecking = @("")
+                        IncludeModuleForChecking  = @("*")
+                        ReportChangeOnMajor       = $true
+                        ReportChangeOnMinor       = $true
+                        ReportChangeOnBuild       = $true
+                        ReportChangeOnRevision    = $true
+                    }
+                    UpdateCheckInterval = "01:00:00"
+                    LastCheck           = [string][datetime]::MinValue
+                    LastSuccessfulCheck = [string][datetime]::MinValue
+                    Path                = $Path
                 }
 
                 # Write setting to file
                 $defaultSetting | ConvertFrom-PackageUpdateSetting | ConvertTo-Json | Out-File -FilePath $Path -Encoding default -Force
 
-                if($PassThru) {
+                if ($PassThru) {
                     $defaultSetting
                 }
             }
@@ -210,27 +213,27 @@
             # Set the new preference values
             if ("ExcludeModuleFromChecking" -in $PSBoundParameters.Keys) {
                 Write-Verbose "Setting ExcludeModuleFromChecking: '$([string]::Join(", ", $ExcludeModuleFromChecking))'"
-                $InputObject.ExcludeModuleFromChecking = $ExcludeModuleFromChecking
+                $InputObject.DefaultRule.ExcludeModuleFromChecking = $ExcludeModuleFromChecking
             }
             if ("IncludeModuleForChecking" -in $PSBoundParameters.Keys) {
                 Write-Verbose "Setting IncludeModuleForChecking: '$([string]::Join(", ", $IncludeModuleForChecking))'"
-                $InputObject.IncludeModuleForChecking = $IncludeModuleForChecking
+                $InputObject.DefaultRule.IncludeModuleForChecking = $IncludeModuleForChecking
             }
             if ($PSBoundParameters["ReportChangeOnMajor"]) {
                 Write-Verbose "Setting ReportChangeOnMajor: $($ReportChangeOnMajor)"
-                $InputObject.ReportChangeOnMajor = $ReportChangeOnMajor
+                $InputObject.DefaultRule.ReportChangeOnMajor = $ReportChangeOnMajor
             }
             if ($PSBoundParameters["ReportChangeOnMinor"]) {
                 Write-Verbose "Setting ReportChangeOnMinor: $($ReportChangeOnMinor)"
-                $InputObject.ReportChangeOnMinor = $ReportChangeOnMinor
+                $InputObject.DefaultRule.ReportChangeOnMinor = $ReportChangeOnMinor
             }
             if ($PSBoundParameters["ReportChangeOnBuild"]) {
                 Write-Verbose "Setting ReportChangeOnBuild: $($ReportChangeOnBuild)"
-                $InputObject.ReportChangeOnBuild = $ReportChangeOnBuild
+                $InputObject.DefaultRule.ReportChangeOnBuild = $ReportChangeOnBuild
             }
             if ($PSBoundParameters["ReportChangeOnRevision"]) {
                 Write-Verbose "Setting ReportChangeOnRevision: $($ReportChangeOnRevision)"
-                $InputObject.ReportChangeOnRevision = $ReportChangeOnRevision
+                $InputObject.DefaultRule.ReportChangeOnRevision = $ReportChangeOnRevision
             }
             if ($PSBoundParameters["UpdateCheckInterval"]) {
                 Write-Verbose "Setting UpdateCheckInterval: $($UpdateCheckInterval)"
@@ -246,7 +249,6 @@
             }
             Write-Verbose "Setting 'Path': $($Path)"
             $InputObject.Path = $Path
-
 
             if ($pscmdlet.ShouldProcess($path, "Export PackageUpdateInfo")) {
                 $InputObject | ConvertFrom-PackageUpdateSetting | ConvertTo-Json | Out-File -FilePath $Path -Encoding default -Force

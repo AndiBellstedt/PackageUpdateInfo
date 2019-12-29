@@ -49,7 +49,11 @@
         'Import-PackageUpdateInfo',
         'Show-PackageUpdateReleaseNote',
         'Get-PackageUpdateSetting',
-        'Set-PackageUpdateSetting'
+        'Set-PackageUpdateSetting',
+        'Add-PackageUpdateRule',
+        'Get-PackageUpdateRule'
+        'Set-PackageUpdateRule',
+        'Remove-PackageUpdateRule'
     )
 
     # Cmdlets to export from this module
@@ -65,7 +69,11 @@
         'ipui',
         'spurn',
         'gpus',
-        'spus'
+        'spus',
+        'apur',
+        'gpur',
+        'spur',
+        'rpur'
     )
 
     # List of all files packaged with this module

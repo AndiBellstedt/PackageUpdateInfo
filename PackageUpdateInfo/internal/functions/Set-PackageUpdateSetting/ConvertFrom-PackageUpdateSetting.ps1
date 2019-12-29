@@ -9,6 +9,9 @@
     .PARAMETER InputObject
         The PackageUpdateSetting object to convert
 
+    .PARAMETER AsHashTable
+        Output is done as hashtable, not as PSObject
+
     .EXAMPLE
         PS C:\> ConvertFrom-PackageUpdateSetting -InputObject (Get-PackageUpdateSetting)
 
@@ -16,7 +19,7 @@
     #>
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "SetBehaviour")]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "SetBehaviour")]
         [PackageUpdate.Configuration]
         $InputObject,
 
@@ -28,18 +31,18 @@
     }
 
     process {
-        $hash = [ordered]@{}
+        $hash = [ordered]@{ }
 
-        $notToString = @("System.Boolean", "System.String[]", "System.Int*")
-        foreach($property in $InputObject.psobject.Properties) {
-            if($property.TypeNameOfValue -in $notToString) {
+        $notToString = @("System.Boolean", "System.String[]", "System.Int", "PackageUpdate.ModuleRule", "PackageUpdate.ModuleRule[]")
+        foreach ($property in $InputObject.psobject.Properties) {
+            if ($property.TypeNameOfValue -in $notToString) {
                 $hash[$property.Name] = $property.Value
             } else {
                 $hash[$property.Name] = [String]($property.Value)
             }
         }
 
-        if($AsHashTable) {
+        if ($AsHashTable) {
             $hash
         } else {
             [PSCustomObject]$hash

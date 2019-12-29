@@ -1,11 +1,10 @@
 ﻿function Get-PackageUpdateSetting {
     <#
     .SYNOPSIS
-        Get the current settings on PackageUpdateInfo behaviour
+        Set behaviour settings for PackageUpdateInfo module
 
     .DESCRIPTION
-        Command query settings for behaviour on how PackageUpdateInfo module is bevahing
-        with checking and reporting on updates for modules.
+        Query the basic settings for check and report on up-to-dateness information on installed modules
 
     .PARAMETER Path
         The filepath where to setting file
@@ -20,7 +19,7 @@
         Get the current settings on PackageUpdateInfo behaviour.
 
     #>
-    [CmdletBinding(SupportsShouldProcess = $false,ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [Alias('gpus')]
     [OutputType([PackageUpdate.Configuration])]
     Param (
@@ -40,40 +39,45 @@
         # Initialize setting object and fill in values
         $output = New-Object -TypeName PackageUpdate.Configuration
 
-        $output.Path = $configuration.Path
+        $output.CustomRule = foreach ($rule in $configuration.CustomRule) {
+            [PackageUpdate.ModuleRule]@{
+                Id                        = $rule.Id
+                ExcludeModuleFromChecking = $rule.ExcludeModuleFromChecking
+                IncludeModuleForChecking  = $rule.IncludeModuleForChecking
+                ReportChangeOnBuild       = $rule.ReportChangeOnBuild
+                ReportChangeOnMajor       = $rule.ReportChangeOnMajor
+                ReportChangeOnMinor       = $rule.ReportChangeOnMinor
+                ReportChangeOnRevision    = $rule.ReportChangeOnRevision
+            }
+        }
 
-        $output.ExcludeModuleFromChecking = $configuration.ExcludeModuleFromChecking
-        $output.IncludeModuleForChecking = $configuration.IncludeModuleForChecking
+        $output.DefaultRule = [PackageUpdate.ModuleRule]@{
+            ExcludeModuleFromChecking = $configuration.DefaultRule.ExcludeModuleFromChecking
+            IncludeModuleForChecking  = $configuration.DefaultRule.IncludeModuleForChecking
+            ReportChangeOnBuild       = $configuration.DefaultRule.ReportChangeOnBuild
+            ReportChangeOnMajor       = $configuration.DefaultRule.ReportChangeOnMajor
+            ReportChangeOnMinor       = $configuration.DefaultRule.ReportChangeOnMinor
+            ReportChangeOnRevision    = $configuration.DefaultRule.ReportChangeOnRevision
+        }
 
-        $output.ReportChangeOnBuild = $configuration.ReportChangeOnBuild
-        $output.ReportChangeOnMajor = $configuration.ReportChangeOnMajor
-        $output.ReportChangeOnMinor = $configuration.ReportChangeOnMinor
-        $output.ReportChangeOnRevision = $configuration.ReportChangeOnRevision
-
-        if("System.TimeSpan" -in $configuration.UpdateCheckInterval.psobject.TypeNames) {
+        if ("System.TimeSpan" -in $configuration.UpdateCheckInterval.psobject.TypeNames) {
             $output.UpdateCheckInterval = [timespan]::new($configuration.UpdateCheckInterval.Days, $configuration.UpdateCheckInterval.Hours, $configuration.UpdateCheckInterval.Minutes, $configuration.UpdateCheckInterval.Seconds, $configuration.UpdateCheckInterval.Milliseconds)
         } else {
             $output.UpdateCheckInterval = [timespan]$configuration.UpdateCheckInterval
         }
 
-        if($configuration.LastCheck) {
+        if ($configuration.LastCheck) {
             $output.LastCheck = [datetime]$configuration.LastCheck
         } else {
             $output.LastCheck = [datetime]::MinValue
         }
-        if($configuration.LastSuccessfulCheck) {
+        if ($configuration.LastSuccessfulCheck) {
             $output.LastSuccessfulCheck = [datetime]$configuration.LastSuccessfulCheck
         } else {
             $output.LastSuccessfulCheck = [datetime]::MinValue
         }
 
-        # Set module variable for version change reporting
-        $script:VersionInterval = [version]::new(
-            [int]($output.ReportChangeOnMajor),
-            [int]($output.ReportChangeOnMinor),
-            [int]($output.ReportChangeOnBuild),
-            [int]($output.ReportChangeOnRevision)
-        )
+        $output.Path = $configuration.Path
 
         $output
     }

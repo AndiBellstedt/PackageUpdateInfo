@@ -17,7 +17,7 @@
     [CmdletBinding()]
     [OutputType([PackageUpdate.Configuration])]
     param (
-        [Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "SetBehaviour")]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "SetBehaviour")]
         [PSCustomObject]
         $InputObject
     )
@@ -26,10 +26,10 @@
     }
 
     process {
-        $hash = [ordered]@{}
+        $hash = [ordered]@{ }
 
-        foreach($property in $InputObject.psobject.Properties) {
-                $hash[$property.Name] = $property.Value
+        foreach ($property in $InputObject.psobject.Properties) {
+            $hash[$property.Name] = $property.Value
         }
 
         [PackageUpdate.Configuration]$hash
