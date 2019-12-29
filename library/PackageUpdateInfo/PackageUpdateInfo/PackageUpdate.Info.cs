@@ -1,12 +1,10 @@
 using System;
 
-namespace PackageUpdate
-{
+namespace PackageUpdate {
     /// <summary>
     /// 
     /// </summary>
-    public class Info
-    {
+    public class Info {
         /// <summary>
         /// 
         /// </summary>
@@ -58,7 +56,11 @@ namespace PackageUpdate
         /// </summary>
         public bool HasReleaseNotes {
             get {
-                if (String.IsNullOrEmpty(ReleaseNotes)) { return false; } else { return true; }
+                if (String.IsNullOrEmpty(ReleaseNotes)) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         }
 
@@ -67,18 +69,14 @@ namespace PackageUpdate
         /// </summary>
         public bool ReleaseNotesIsUri {
             get {
-                if (HasReleaseNotes)
-                {
-                    try
-                    {
+                if (HasReleaseNotes) {
+                    try {
                         Uri urlCheck = new Uri(ReleaseNotes);
                         return true;
-                    } catch (Exception)
-                    {
+                    } catch (Exception) {
                         return false; //could not parse ReleaseNotes to URI
                     }
-                } else
-                {
+                } else {
                     return false;
                 }
             }
@@ -99,4 +97,5 @@ namespace PackageUpdate
         /// </summary>
         public string Description;
     }
+
 }

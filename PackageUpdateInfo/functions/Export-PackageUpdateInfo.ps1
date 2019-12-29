@@ -13,6 +13,10 @@
         The filepath where to export the infos.
         Please specify a file as path.
 
+        Default path value is:
+        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+
     .PARAMETER OutputFormat
         The output format for the data
         Available formats are "XML","JSON","CSV"
@@ -56,7 +60,7 @@
         [Parameter(Position = 0)]
         [Alias("FullName", "FilePath")]
         [String]
-        $Path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml"),
+        $Path,
 
         [ValidateSet("XML", "JSON", "CSV")]
         [Alias("Format")]
@@ -81,6 +85,15 @@
     )
 
     begin {
+        # Set path variable to default value, when not specified
+        if(-not $path) {
+            if($IsLinux) {
+                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+            } else {
+                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+            }
+        }
+
         # If  file is specified as path
         if (Test-Path -Path $Path -PathType Leaf -IsValid) {
             # If file is present, resolve the path
@@ -88,8 +101,8 @@
                 $outputPath = Resolve-Path -Path $Path
             } else {
                 # If Force switch is specified and the path does not exists
-                if ($Force -and (-not (Resolve-Path -Path (Split-Path $Path))) ) {
-                    New-Item -ItemType Directory -Path (Split-Path $Path) -ErrorAction Stop
+                if ($Force -and (-not (Resolve-Path -Path (Split-Path $Path -ErrorAction SilentlyContinue))) ) {
+                    $null = New-Item -ItemType Directory -Path (Split-Path $Path) -ErrorAction Stop
                 }
                 # Try to create the file and resolve the path
                 $outputPath = New-Item -ItemType File -Path $Path -ErrorAction Stop

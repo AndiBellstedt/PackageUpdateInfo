@@ -26,6 +26,10 @@
         Only look for modules in the AllUsers/system directories.
         Keep in mind, that admin rights are required to update those modules.
 
+    .PARAMETER Force
+        Force to query info about up-to-dateness for installed modules, even if the UpdateCheckInterval
+        from last check is not expired.
+
     .EXAMPLE
         PS C:\> Get-PackageUpdateInfo
 
@@ -83,16 +87,40 @@
 
         [Parameter(ParameterSetName = 'AllUsers')]
         [switch]
-        $AllUsers
+        $AllUsers,
+
+        [switch]
+        $Force
     )
 
     begin {
-        #$currentUserModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -like "$(Split-Path $PROFILE -Parent)*" -or $_ -like "$($HOME)*"}
-        #$allUsersModulePath = $env:PSModulePath.split(';') | Where-Object {$_ -notlike "$(Split-Path $PROFILE -Parent)*" -and $_ -notlike "$($HOME)*"}
+        if ($ShowToastNotification -and (-not $script:EnableToastNotification)) {
+            Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
+        }
 
-        $getPSRepositoryParams = @{}
+        # Doing checks if the update check against the modules is done
+        $moduleSetting = Get-PackageUpdateSetting
+        if (-not $Force) {
+            if ($moduleSetting.LastCheck -gt $moduleSetting.LastSuccessfulCheck) {
+                $effectiveCheckDate = $moduleSetting.LastCheck
+            } else {
+                $effectiveCheckDate = $moduleSetting.LastSuccessfulCheck
+            }
+
+            if ( ($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date) ) {
+                Write-Warning -Message "Skip checking for updates on modules, due to last check happens at $($effectiveCheckDate.ToShortTimeString()) and minimum UpdateCheckInterval is set to $($moduleSetting.UpdateCheckInterval)"
+                break
+            }
+        } else {
+            Write-Verbose -Message "Force parameter specified. Bypassing checking on UpdateCheckInterval and enforcing up-to-dateness check on modules"
+        }
+        Set-PackageUpdateSetting -LastCheck (Get-Date)
+
+        # Get the necessary repositories
+        $getPSRepositoryParams = @{ }
         if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
         $psRepositories = Get-PSRepository @getPSRepositoryParams -ErrorAction Stop
+
     }
 
     process {
@@ -122,10 +150,9 @@
             # Get available modules from online repositories
             Write-Verbose "Get available modules from online repositories"
             $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $findModuleParams = @{
-                    Name = $moduleLocalName
-                }
-                if ($Repository) { $findModuleParams.Add("Repository", $Repository) }
+                $findModuleParams = @{ }
+                $findModuleParams["Name"] = $moduleLocalName
+                if ($Repository) { $findModuleParams["Repository"] = $Repository }
                 Find-Module @findModuleParams
             }
 
@@ -136,7 +163,8 @@
 
                 if ($moduleOnline.version -gt $moduleLocal.version) {
                     Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
-                    $UpdateAvailable = $true
+                    $UpdateAvailable = Test-UpdateIsNeeded -ModuleLocal $moduleLocal -ModuleOnline $moduleOnline
+                    #$UpdateAvailable = $true
                 } elseif ($moduleOnline.version -lt $moduleLocal.version) {
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false
@@ -163,7 +191,9 @@
                 }
                 $PackageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
 
-                if ($ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) { Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo }
+                if ($script:EnableToastNotification -and $ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) {
+                    Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo
+                }
 
                 $PackageUpdateInfo
             }
@@ -171,5 +201,6 @@
     }
 
     end {
+        Set-PackageUpdateSetting -LastSuccessfulCheck (Get-Date)
     }
 }
