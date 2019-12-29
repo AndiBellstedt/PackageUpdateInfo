@@ -9,8 +9,8 @@ The PackageUpdatesInfo module helps you staying up to date with you installed mo
 
 ## Prerequisites
 
-- PowerShell 5
-- PowerShell Module: BurntToast
+- Windows PowerShell 5.1 / PowerShell 6
+- (optional) PowerShell module BurntToast
 <br><br>
 
 
