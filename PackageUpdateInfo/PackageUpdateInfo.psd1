@@ -21,7 +21,7 @@
     Description = 'Module to version check all installed modules. Helps to stay up-to-date with further developing on modules in the community'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '5.0'
+    PowerShellVersion = '5.1'
 
     # Which PowerShell Editions does this module work with? (Core, Desktop)
     CompatiblePSEditions = @('Desktop', 'Core')
