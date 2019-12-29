@@ -1,13 +1,31 @@
 # Changelog
 # 1.2.0.0
-- New: Add command *Show-PackageUpdateReleaseNote*
-    - Possibility to get release notes from websites and display it on the console
 - New: Enabling CORE and cross-platform compatibility
     - Doing code refactoring to bring PackageUpdateInfo into PowerShell version 6 & 7 (CORE)
     - Module now also runs on linux systems
 - Upd: Remove dependency on module BurntToast
     - For now, BurntToast is a optional module in PackageUpdateInfo
     - Toast notifications are available on Windows 10 in 'Windows PowerShell' and 'PowerShell' (Core)
+- New: Add command *Show-PackageUpdateReleaseNote*
+    - Possibility to get release notes from websites and display it on the console
+- New: Add command *Get-PackageUpdateSetting*
+    - Query the basic settings for check and report on up-to-dateness information on installed modules. This is how *Get-PackageUpdateInfo* will check on modules.
+    - There is a 'UpdateCheckInterval' to set, how often *Get-PackageUpdateInfo* seeks out for query updates on modules.\
+    Default is once per hour (01:00:00)
+    - There is a 'DefaultRule' for general checking on
+        - which module to include/exclude in checking
+        - which part of the version number has to change to report as 'update-needed' (major, minor, build, revision)
+- New: Add command *Set-PackageUpdateSetting*
+    - The command configures basic settings for check and report on up-to-dateness information on installed modules. (look previous bullet point)
+- New: Add command *Add-PackageUpdateRule*
+    - This command allows to declare how a modules is handled in reporting for special.
+    - For example, you can configure PackageUpdateINfo to suppress revision updates on a frequent updated module, so that only build, minor or major updates are reportet as "update needed".
+- New: Add command *Get-PackageUpdateRul*
+    - This command get the existing custom rule(s) how modules are handled in reporting.
+- New: Add command *Set-PackageUpdateRule*
+    - This command allows to edit existing rules on how a modules is handled in reporting.
+- New: Add command *Remove-PackageUpdateRule*
+    - This command remove existing custom rule(s) on how a modules is handled in reporting.
 
 # 1.1.1.0
 - Fix: Command *Get-PackageUpdateInfo*

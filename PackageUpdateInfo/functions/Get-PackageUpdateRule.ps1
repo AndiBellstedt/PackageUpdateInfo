@@ -4,10 +4,7 @@
         Get rule(s) for checking and reporting on installed modules
 
     .DESCRIPTION
-        This command allows to declare how a modules is handled in reporting for special.
-
-        For example, you can configure PackageUpdateINfo to suppress revision updates on a frequent
-        updated module, so that only build, minor or major updates are reportet as "update needed".
+        This command get the existing custom rule(s) how modules are handled in reporting.
 
     .PARAMETER Id
         The Id as an identifier for the rule
