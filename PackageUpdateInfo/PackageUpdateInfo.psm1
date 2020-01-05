@@ -1,5 +1,5 @@
 $script:ModuleRoot = $PSScriptRoot
-$script:ModuleVersion = "1.2.0.0" #(Import-PowerShellDataFile -Path "$($script:ModuleRoot)\PackageUpdateInfo.psd1").ModuleVersion
+$script:ModuleVersion = "1.2.1.0" #(Import-PowerShellDataFile -Path "$($script:ModuleRoot)\PackageUpdateInfo.psd1").ModuleVersion
 
 #region Helper function
 function Import-ModuleFile {
