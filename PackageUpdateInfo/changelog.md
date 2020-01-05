@@ -1,4 +1,10 @@
 # Changelog
+# 1.2.1.0
+- Fix: Ugly error messages, if no configuration file existis due to fresh system installation.
+    - Implementented check and warning messages on this behaviour
+    - Add init routine in module loading, if no default config file is present
+- Upd: Try to supress verbose messesages on module up-to-dateness checking in *Get-PackageUpdateInfo*
+
 # 1.2.0.0
 - New: Enabling CORE and cross-platform compatibility
     - Doing code refactoring to bring PackageUpdateInfo into PowerShell version 6 & 7 (CORE)
