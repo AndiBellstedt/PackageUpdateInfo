@@ -8,7 +8,7 @@ $optionalModule = @{
 }
 $script:EnableToastNotification = $true
 
-$moduleToLoad = Get-Module -Name $optionalModule.ModuleName -ListAvailable | Where-Object { $_.Version -ge [version]$optionalModule.ModuleVersion } | Sort-Object -Property Version | Select-Object -Last 1
+$moduleToLoad = Get-Module -Name $optionalModule.ModuleName -ListAvailable -Verbose:$false | Where-Object { $_.Version -ge [version]$optionalModule.ModuleVersion } | Sort-Object -Property Version | Select-Object -Last 1
 if ($moduleToLoad) {
     try {
         $moduleToLoad | Import-Module -ErrorAction Stop
