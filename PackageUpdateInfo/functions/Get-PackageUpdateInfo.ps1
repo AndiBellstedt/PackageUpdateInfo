@@ -150,8 +150,10 @@
             # Get available modules from online repositories
             Write-Verbose "Get available modules from online repositories"
             $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $findModuleParams = @{ }
-                $findModuleParams["Name"] = $moduleLocalName
+                $findModuleParams = @{
+                    "Name" = $moduleLocalName
+                    "Verbose" = $false
+                }
                 if ($Repository) { $findModuleParams["Repository"] = $Repository }
                 Find-Module @findModuleParams
             }

@@ -34,7 +34,13 @@
 
     process {
         # read settings file
-        $configuration = Get-Content -Path $Path | ConvertFrom-Json
+        try {
+            $configuration = Get-Content -Path $Path -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        } catch {
+            Write-Warning -Message "Module configuration file not found! ($($Path))"
+            Write-Warning -Message "Please check the path or initialize configuration by using 'Set-PackageUpdateSetting -Reset'"
+            throw
+        }
 
         # Initialize setting object and fill in values
         $output = New-Object -TypeName PackageUpdate.Configuration

@@ -18,3 +18,8 @@ if (Test-Path -Path $script:ModuleTempPath) {
 } else {
     New-Item -Path $script:ModuleTempPath -ItemType Directory -Force | Out-Null
 }
+
+if (-not (Test-Path -Path $script:ModuleSettingPath)) {
+    Write-Verbose -Message "Going to initialize default settings for module PackageUpdateInfo"
+    Set-PackageUpdateSetting -Reset -Path $script:ModuleSettingPath
+}
