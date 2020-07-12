@@ -183,6 +183,10 @@
         if ($pscmdlet.ShouldProcess($SettingObject.Path, "Add custom ModuleRule")) {
             $SettingObject | ConvertFrom-PackageUpdateSetting | ConvertTo-Json | Out-File -FilePath $SettingObject.Path -Encoding default -Force
         }
+
+        if($PassThru) {
+            [PackageUpdate.ModuleRule]$rule
+        }
     }
 
     end {
