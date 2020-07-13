@@ -20,7 +20,7 @@ param (
     [string]
     $Repository = 'PSGallery',
 
-    $Modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
+    $Modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer", "BurntToast")
 )
 
 
