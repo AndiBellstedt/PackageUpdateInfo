@@ -2,6 +2,9 @@
 # 1.2.2.0
 - Upd: Add-PackageUpdateRule
     - Parameter PassThru now actually works as intended.
+- Fix: Fixing some typos
+- Fix: Remove files and command depend on PSFramework
+- Upd: Add plattform and statistic information to readme file
 
 # 1.2.1.0
 - Fix: Ugly error messages, if no configuration file existis due to fresh system installation.
