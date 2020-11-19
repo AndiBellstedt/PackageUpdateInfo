@@ -1,9 +1,9 @@
 @{
     # Script module or binary module file associated with this manifest
-    ModuleToProcess = 'PackageUpdateInfo.psm1'
+    RootModule = 'PackageUpdateInfo.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.2.1.0'
+    ModuleVersion = '1.2.2.0'
 
     # ID used to uniquely identify this module
     GUID = '1f216c97-d110-4d88-bc30-ec850757a256'
@@ -86,7 +86,25 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('ModuleUpdateInfo', 'ModuleUpdate', 'ModuleUpdater', 'PSGallery', 'Updater', 'Updates', 'Update', 'Package', 'Packages', 'UpdateManagement', "UpdateMgmt", 'UpdMgmt')
+            Tags = @(
+                'ModuleUpdateInfo',
+                'ModuleUpdate',
+                'ModuleUpdater',
+                'PSGallery',
+                'Updater',
+                'Updates',
+                'Update',
+                'Package',
+                'Packages',
+                'UpdateManagement',
+                "UpdateMgmt",
+                'UpdMgmt',
+                'PSEdition_Core',
+                'PSEdition_Desktop',
+                'Windows',
+                'Linux',
+                'macOS'
+            )
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/AndiBellstedt/PackageUpdateInfo/blob/master/LICENSE'

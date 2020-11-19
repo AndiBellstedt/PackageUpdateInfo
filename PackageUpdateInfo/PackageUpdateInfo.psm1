@@ -1,5 +1,6 @@
 $script:ModuleRoot = $PSScriptRoot
-$script:ModuleVersion = "1.2.1.0" #(Import-PowerShellDataFile -Path "$($script:ModuleRoot)\PackageUpdateInfo.psd1").ModuleVersion
+$script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\PackageUpdateInfo.psd1").ModuleVersion
+
 
 #region Helper function
 function Import-ModuleFile {
@@ -27,13 +28,18 @@ function Import-ModuleFile {
         $Path
     )
 
-    if ($script:dontDotSource) { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText((Resolve-Path $Path)))), $null, $null) }
-    else { . (Resolve-Path $Path) }
+    if ($script:dontDotSource) {
+        $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText((Resolve-Path $Path)))), $null, $null)
+    } else {
+        . (Resolve-Path $Path)
+    }
 }
 #endregion Helper function
 
+
 # Perform Actions before loading the rest of the content
 . Import-ModuleFile -Path "$ModuleRoot\internal\scripts\preimport.ps1"
+
 
 #region Load functions
 foreach ($function in (Get-ChildItem "$ModuleRoot\internal\functions" -Recurse -File -Filter "*.ps1")) {
@@ -44,6 +50,7 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\functions" -Recurse -File -Fil
     . Import-ModuleFile -Path $function.FullName
 }
 #endregion Load functions
+
 
 # Perform Actions after loading the module contents
 . Import-ModuleFile -Path "$ModuleRoot\internal\scripts\postimport.ps1"
