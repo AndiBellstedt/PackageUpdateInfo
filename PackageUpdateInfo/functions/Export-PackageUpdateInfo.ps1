@@ -14,8 +14,8 @@
         Please specify a file as path.
 
         Default path value is:
-        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
-        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
 
     .PARAMETER OutputFormat
         The output format for the data
@@ -86,11 +86,11 @@
 
     begin {
         # Set path variable to default value, when not specified
-        if(-not $path) {
-            if($IsLinux) {
-                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+        if (-not $path) {
+            if ($IsLinux) {
+                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
             } else {
-                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
             }
         }
 
@@ -108,9 +108,8 @@
                 $outputPath = New-Item -ItemType File -Path $Path -ErrorAction Stop
                 $outputPath = Resolve-Path -Path $outputPath
             }
-        }
-        # If directory is specified as path
-        elseif (Test-Path -Path $Path -PathType Container) {
+        } elseif (Test-Path -Path $Path -PathType Container) {
+            # If directory is specified as path
             Write-Error -Message "Specified Path is a directory. Please specify an file." -ErrorAction Stop
         } else {
             Write-Error -Message "Specified Path is an invalid directory. Please specify an valid file as output path." -ErrorAction Stop
@@ -137,7 +136,7 @@
                     IconUri          = $object.IconUri
                     ReleaseNotes     = $object.ReleaseNotes
                     Author           = $object.Author
-                    PublishedDate    = $object.PublishedDate
+                    PublishedDate    = ($object.PublishedDate | Get-Date -Format "yyyy-MM-dd HH:mm:ss")
                     Description      = $object.Description
                 }
                 if ($IncludeTimeStamp) {
@@ -148,8 +147,6 @@
         } else {
             $output += $InputObject
         }
-
-        if ($PassThru) { [PackageUpdate.Info]$InputObject }
     }
 
     end {
@@ -174,9 +171,14 @@
                     $Exportdata | Export-Clixml -Path $outputPath.Path -Encoding $Encoding
                 }
             }
+
+            if ($PassThru) {
+                $output | ForEach-Object { [PackageUpdate.Info]$_ }
+            }
         } else {
             Write-Verbose -Message "No data were processed, nothing to output."
             "" | Out-File $outputPath.Path -Encoding $Encoding
         }
+
     }
 }

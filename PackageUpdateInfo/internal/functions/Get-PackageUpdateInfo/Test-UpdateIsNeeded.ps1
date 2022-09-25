@@ -26,10 +26,6 @@
         $moduleOnline
     )
 
-    <#
-    $ModuleLocal = (Get-Module Pester -ListAvailable | select -First 1 )
-    $moduleOnline = (Find-Module -Name Pester)
-    #>
     $versionDiff = Get-VersionDifference -LowerVersion $ModuleLocal.Version -HigherVersion $moduleOnline.Version
     $name = $ModuleLocal.Name
 

@@ -1,4 +1,10 @@
 # Changelog
+# 1.2.3.0
+- Fix: Issure #26 - Problem on running PSEdition core & desktop in parallel
+    - Export/Import commands now writes version specific files by default (e.g. PackageUpdateInfo_Desktop_5.xml)
+- Fix: Issue #25 - Export-PackageUpdateInfo -PassThru
+    - fix output issue and date conversion bug
+
 # 1.2.2.0
 - Upd: Add-PackageUpdateRule
     - Parameter PassThru now actually works as intended.
