@@ -11,8 +11,8 @@
         Please specify a file as path.
 
         Default path value is:
-        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
-        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
 
     .PARAMETER ShowToastNotification
         This switch invokes nice Windows-Toast-Notifications with release note information on modules with update needed.
@@ -33,7 +33,7 @@
     .EXAMPLE
         PS C:\> Import-PackageUpdateInfo
 
-        Try to import the default file "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml"
+        Try to import the default file "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml"
     #>
     [CmdletBinding( SupportsShouldProcess = $true,
         ConfirmImpact = 'Low')]
@@ -67,9 +67,9 @@
         # Set path variable to default value, when not specified
         if(-not $path) {
             if($IsLinux) {
-                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo.xml")
+                $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
             } else {
-                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo.xml")
+                $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
             }
         }
     }
@@ -90,6 +90,7 @@
                 }
 
                 foreach ($record in $records) {
+                    $_date = $record.PublishedDate | Get-Date
                     $hash = [ordered]@{
                         Name             = $record.Name
                         Repository       = $record.Repository
@@ -101,7 +102,7 @@
                         IconUri          = $record.IconUri
                         ReleaseNotes     = $record.ReleaseNotes
                         Author           = $record.Author
-                        PublishedDate    = $record.PublishedDate
+                        PublishedDate    = $_date
                         Description      = $record.Description
                     }
                     $PackageUpdateInfo = [PackageUpdate.Info]$hash
