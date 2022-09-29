@@ -10,8 +10,8 @@
         The filepath where to setting file is stored
 
         This is optional, default path value is:
-        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateSetting.xml")
-        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting.xml")
+        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
 
     .PARAMETER InputObject
         Settings object parsed in from command Get-PackageUpdateSetting
