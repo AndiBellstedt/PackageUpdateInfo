@@ -118,7 +118,7 @@ $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n")
 if ($AutoVersion) {
     Write-PSFMessage -Level Important -Message "Updating module version numbers."
 
-    $remoteModule = Find-Module '$($ModuleName)' -Repository $Repository -ErrorAction SilentlyContinue
+    $remoteModule = Find-Module "$($ModuleName)" -Repository $Repository -ErrorAction SilentlyContinue
     [version]$remoteVersion = $remoteModule.Version
     if(-not $remoteVersion) { [version]$remoteVersion = [version]::new(0, 0, 0, 0) }
 
