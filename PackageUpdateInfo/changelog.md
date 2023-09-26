@@ -1,6 +1,9 @@
 # Changelog
+# 1.2.4.0
+- Fix: Issue [#24](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/24) - Module version number 1.9 is higher than 1.10
+    - The online gallery probably delivers version information not as a 'version' type, but as a string.
 # 1.2.3.0
-- Fix: Issure #26 - Problem on running PSEdition core & desktop in parallel
+- Fix: Issure [#24](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/24) - Problem on running PSEdition core & desktop in parallel
     - Export/Import commands now writes version specific files by default (e.g. PackageUpdateInfo_Desktop_5.xml)
 - Fix: Issue #25 - Export-PackageUpdateInfo -PassThru
     - fix output issue and date conversion bug

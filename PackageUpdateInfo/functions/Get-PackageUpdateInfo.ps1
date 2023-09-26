@@ -163,11 +163,11 @@
             foreach ($moduleOnline in $modulesOnline) {
                 $moduleLocal = $modulesLocal | Where-Object Name -like $moduleOnline.Name
 
-                if ($moduleOnline.version -gt $moduleLocal.version) {
+                if ([version]($moduleOnline.version) -gt [version]($moduleLocal.version)) {
                     Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
                     $UpdateAvailable = Test-UpdateIsNeeded -ModuleLocal $moduleLocal -ModuleOnline $moduleOnline
                     #$UpdateAvailable = $true
-                } elseif ($moduleOnline.version -lt $moduleLocal.version) {
+                } elseif ([version]($moduleOnline.version) -lt [version]($moduleLocal.version)) {
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false
                 } else {
