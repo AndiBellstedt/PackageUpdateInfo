@@ -89,6 +89,30 @@
         If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
 
     .EXAMPLE
+        PS C:\> Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalOnlyModule"
+
+        Put the module "MyLocalOnlyModule" on the exclude list for update checking.
+        By design, this should be considered only for modules not available in a online gallery.
+        This capability is designed to avoid unnecessary update checks, for modules not existing in a online gallery.
+
+        You'll not get any update information for module 'MyLocalOnlyModule' anymore!
+
+        If you have worries/issues on performance, due to a large number of modules installed, you better follow the practice to put the 'checking mechansim' in you PSProfile as a job routine every time you start a shell.
+        Doing so is described in the 'practical-usage' on the github project page:
+        https://github.com/AndiBellstedt/PackageUpdateInfo#practical-usage
+
+    .EXAMPLE
+        PS C:\> Set-PackageUpdateSetting -ExcludeModuleFromChecking "Az.*"
+
+        Put all Az. modules on the exclude list for update checking.
+        This should be considered as a bad practice, because you'll not get any update information for all Az. modules anymore.
+        (and they might change quite often)
+
+        If you have worries/issues on performance, due to a large number of modules installed, you better follow the practice to put the 'checking mechansim' in you PSProfile as a job routine every time you start a shell.
+        Doing so is described in the 'practical-usage' on the github project page:
+        https://github.com/AndiBellstedt/PackageUpdateInfo#practical-usage
+
+    .EXAMPLE
         PS C:\> Set-PackageUpdateSetting -ExcludeModuleFromChecking @("") -IncludeModuleForChecking "*" -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $true -UpdateCheckInterval "01:00:00"
 
         Reset module to it'S default behaviour
