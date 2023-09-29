@@ -1,7 +1,18 @@
 # Changelog
+# 1.2.5.0
+- Fix: Issue [#33](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/33) - Get-PackageUpdateInfo ignores ExcludeModuleFromChecking\
+    - Optimize filtering for module checking against galleries
+- Upd:
+    - Command Get-PackageUpdateInfo\
+        Optimize filtering to fit requirement on issue [#33](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/33)
+    - Command Set-PackageUpdateSetting\
+        Add examples in the documentation\
+        ! Please read the examples befor putting anything on the exclusion list
+
 # 1.2.4.0
 - Fix: Issue [#24](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/24) - Module version number 1.9 is higher than 1.10
     - The online gallery probably delivers version information not as a 'version' type, but as a string.
+
 # 1.2.3.0
 - Fix: Issure [#24](https://github.com/AndiBellstedt/PackageUpdateInfo/issues/24) - Problem on running PSEdition core & desktop in parallel
     - Export/Import commands now writes version specific files by default (e.g. PackageUpdateInfo_Desktop_5.xml)

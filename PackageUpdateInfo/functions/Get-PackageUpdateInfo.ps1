@@ -107,33 +107,55 @@
                 $effectiveCheckDate = $moduleSetting.LastSuccessfulCheck
             }
 
-            if ( ($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date) ) {
+            if (($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date)) {
                 Write-Warning -Message "Skip checking for updates on modules, due to last check happens at $($effectiveCheckDate.ToShortTimeString()) and minimum UpdateCheckInterval is set to $($moduleSetting.UpdateCheckInterval)"
-                break
+                return
             }
         } else {
             Write-Verbose -Message "Force parameter specified. Bypassing checking on UpdateCheckInterval and enforcing up-to-dateness check on modules"
         }
         Set-PackageUpdateSetting -LastCheck (Get-Date)
 
-        # Get the necessary repositories
-        $getPSRepositoryParams = @{ }
-        if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
-        $psRepositories = Get-PSRepository @getPSRepositoryParams -ErrorAction Stop
+        # Get the rules for update checking
+        $updateCheckingRules = Get-PackageUpdateRule -IncludeDefaultRule | Sort-Object -Property Id -Descending
 
+        # Get the necessary repositories
+        $paramsGetPSRepository = @{
+            "ErrorAction" = "Stop"
+        }
+        if ($Repository) { $paramsGetPSRepository.Add("Name", $Repository) }
+        $psRepositories = Get-PSRepository @paramsGetPSRepository
     }
 
     process {
-        if (-not $Name) { $Name = "*" }
+        if (-not $Name) {
+            # If name not specified, check the specified rules to get modules to include
+            if ($updateCheckingRules.IncludeModuleForChecking -match "^\*$") {
+                # When '*' is in the include list -> get all available modules
+                $Name = "*"
+            } else {
+                # When '*' is not in the include list -> get the list of included modules from the rules
+                $Name = $updateCheckingRules.IncludeModuleForChecking
+            }
+        }
+
         foreach ($nameItem in $Name) {
+            # Check for inclue to declare, the name fits for processing rules
+            $stop = $true
+            foreach ($include in $updateCheckingRules.IncludeModuleForChecking) {
+                if ($Name -like $include) { $stop = $false }
+            }
+            if ($stop) { continue }
+
             # Get local module(s)
             Write-Verbose "Get local module(s): $($nameItem)"
-            $getModuleParams = @{
+            $paramsGetModule = @{
                 ListAvailable = $true
                 Name          = $nameItem
                 Verbose       = $false
             }
-            $modulesLocal = Get-Module @getModuleParams | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0] }
+            $modulesLocal = Get-Module @paramsGetModule | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0] }
+            Write-Verbose "Found local module(s): $($modulesLocal.count)"
 
             # Filtering out if switches are specified
             Write-Verbose "Do the filtering..."
@@ -147,15 +169,30 @@
                 $modulesLocal = foreach ($psRepository in $psRepositories) { $modulesLocal | Where-Object RepositorySourceLocation -like "$($psRepository.SourceLocation)*" }
             }
 
+            # Filtering on excludes from the rules in the locally present modules
+            foreach ($moduleLocalName in $modulesLocal.Name) {
+                # Work through every module to check all specified excludes
+
+                foreach ($exclude in $updateCheckingRules.ExcludeModuleFromChecking) {
+                    # like filtering to enable wildcards in exclude patterns
+
+                    if ($moduleLocalName -like $exclude) {
+                        Write-Verbose -Message "Exclude pattern '$($exclude)' matches for module $($moduleLocalName). Not going to check on this module."
+                        $modulesLocal = $modulesLocal | Where-Object Name -NotLike $moduleLocalName
+                    }
+                }
+            }
+            Write-Verbose "Local module(s) to check after filtering: $($modulesLocal.count)"
+
             # Get available modules from online repositories
             Write-Verbose "Get available modules from online repositories"
             $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $findModuleParams = @{
-                    "Name" = $moduleLocalName
+                $paramsFindModule = @{
+                    "Name"    = $moduleLocalName
                     "Verbose" = $false
                 }
-                if ($Repository) { $findModuleParams["Repository"] = $Repository }
-                Find-Module @findModuleParams
+                if ($Repository) { $paramsFindModule["Repository"] = $Repository }
+                Find-Module @paramsFindModule
             }
 
             # Compare the version and create output
@@ -164,15 +201,20 @@
                 $moduleLocal = $modulesLocal | Where-Object Name -like $moduleOnline.Name
 
                 if ([version]($moduleOnline.version) -gt [version]($moduleLocal.version)) {
+                    # Online version is higher than local version
                     Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
                     $UpdateAvailable = Test-UpdateIsNeeded -ModuleLocal $moduleLocal -ModuleOnline $moduleOnline
-                    #$UpdateAvailable = $true
+
                 } elseif ([version]($moduleOnline.version) -lt [version]($moduleLocal.version)) {
+                    # Online version is lower than local version, which should not happen as often)
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false
+
                 } else {
+                    # Online version is equal to local version
                     Write-Verbose "The module '$($moduleOnline.Name)' is up to date (Version $($moduleLocal.version))"
                     $UpdateAvailable = $false
+
                 }
 
                 if ($ShowOnlyNeededUpdate -and (-not $UpdateAvailable)) { continue }
@@ -191,13 +233,13 @@
                     PublishedDate    = $moduleOnline.PublishedDate
                     Description      = $moduleOnline.Description
                 }
-                $PackageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
+                $packageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
 
-                if ($script:EnableToastNotification -and $ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) {
-                    Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo
+                if ($script:EnableToastNotification -and $ShowToastNotification -and $packageUpdateInfo.NeedUpdate) {
+                    Show-ToastNotification -PackageUpdateInfo $packageUpdateInfo
                 }
 
-                $PackageUpdateInfo
+                $packageUpdateInfo
             }
         }
     }

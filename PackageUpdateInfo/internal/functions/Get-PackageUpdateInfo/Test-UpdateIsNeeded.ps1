@@ -34,6 +34,7 @@
     foreach ($rule in $rules) {
         Write-Verbose -Message "Working on rule $($rule.Id)"
         $stop = $false
+
         # check for exclude and abort further processing for rule
         foreach ($exclude in $rule.ExcludeModuleFromChecking) {
             if ($name -like $exclude) {
