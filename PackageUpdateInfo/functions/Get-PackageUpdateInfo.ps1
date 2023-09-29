@@ -107,9 +107,9 @@
                 $effectiveCheckDate = $moduleSetting.LastSuccessfulCheck
             }
 
-            if ( ($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date) ) {
+            if (($effectiveCheckDate + $moduleSetting.UpdateCheckInterval) -ge (Get-Date)) {
                 Write-Warning -Message "Skip checking for updates on modules, due to last check happens at $($effectiveCheckDate.ToShortTimeString()) and minimum UpdateCheckInterval is set to $($moduleSetting.UpdateCheckInterval)"
-                break
+                return
             }
         } else {
             Write-Verbose -Message "Force parameter specified. Bypassing checking on UpdateCheckInterval and enforcing up-to-dateness check on modules"
@@ -117,10 +117,11 @@
         Set-PackageUpdateSetting -LastCheck (Get-Date)
 
         # Get the necessary repositories
-        $getPSRepositoryParams = @{ }
-        if ($Repository) { $getPSRepositoryParams.Add("Name", $Repository) }
-        $psRepositories = Get-PSRepository @getPSRepositoryParams -ErrorAction Stop
-
+        $paramsGetPSRepository = @{
+            "ErrorAction" = "Stop"
+        }
+        if ($Repository) { $paramsGetPSRepository.Add("Name", $Repository) }
+        $psRepositories = Get-PSRepository @paramsGetPSRepository
     }
 
     process {
@@ -128,12 +129,12 @@
         foreach ($nameItem in $Name) {
             # Get local module(s)
             Write-Verbose "Get local module(s): $($nameItem)"
-            $getModuleParams = @{
+            $paramsGetModule = @{
                 ListAvailable = $true
                 Name          = $nameItem
                 Verbose       = $false
             }
-            $modulesLocal = Get-Module @getModuleParams | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0] }
+            $modulesLocal = Get-Module @paramsGetModule | Where-Object RepositorySourceLocation | Sort-Object Name, Version -Descending | Group-Object Name | ForEach-Object { $_.group[0] }
 
             # Filtering out if switches are specified
             Write-Verbose "Do the filtering..."
@@ -150,12 +151,12 @@
             # Get available modules from online repositories
             Write-Verbose "Get available modules from online repositories"
             $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $findModuleParams = @{
-                    "Name" = $moduleLocalName
+                $paramsFindModule = @{
+                    "Name"    = $moduleLocalName
                     "Verbose" = $false
                 }
-                if ($Repository) { $findModuleParams["Repository"] = $Repository }
-                Find-Module @findModuleParams
+                if ($Repository) { $paramsFindModule["Repository"] = $Repository }
+                Find-Module @paramsFindModule
             }
 
             # Compare the version and create output
@@ -166,7 +167,6 @@
                 if ([version]($moduleOnline.version) -gt [version]($moduleLocal.version)) {
                     Write-Verbose "Update available for module '$($moduleOnline.Name)': local v$($moduleLocal.version) --> v$($moduleOnline.version) online"
                     $UpdateAvailable = Test-UpdateIsNeeded -ModuleLocal $moduleLocal -ModuleOnline $moduleOnline
-                    #$UpdateAvailable = $true
                 } elseif ([version]($moduleOnline.version) -lt [version]($moduleLocal.version)) {
                     Write-Warning "Local version for module '$($moduleOnline.Name)' is higher than online version: local v$($moduleLocal.version) <-- v$($moduleOnline.version) online"
                     $UpdateAvailable = $false
@@ -191,13 +191,13 @@
                     PublishedDate    = $moduleOnline.PublishedDate
                     Description      = $moduleOnline.Description
                 }
-                $PackageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
+                $packageUpdateInfo = New-Object -TypeName PackageUpdate.Info -Property $outputHash
 
-                if ($script:EnableToastNotification -and $ShowToastNotification -and $PackageUpdateInfo.NeedUpdate) {
-                    Show-ToastNotification -PackageUpdateInfo $PackageUpdateInfo
+                if ($script:EnableToastNotification -and $ShowToastNotification -and $packageUpdateInfo.NeedUpdate) {
+                    Show-ToastNotification -PackageUpdateInfo $packageUpdateInfo
                 }
 
-                $PackageUpdateInfo
+                $packageUpdateInfo
             }
         }
     }
