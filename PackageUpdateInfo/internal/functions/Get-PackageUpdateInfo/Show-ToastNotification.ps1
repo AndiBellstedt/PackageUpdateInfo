@@ -48,7 +48,7 @@
             if (Test-Path -Path $iconPath) { Remove-Item -Path $iconPath -Force -ErrorAction:SilentlyContinue }
 
             try {
-                Invoke-WebRequest -Uri $PackageUpdateInfo.IconUri -OutFile $iconPath -SkipCertificateCheck -SkipHeaderValidation -ErrorAction Stop
+                Invoke-WebRequest -Uri $PackageUpdateInfo.IconUri -OutFile $iconPath -SkipCertificateCheck -SkipHeaderValidation -UseBasicParsing -ErrorAction Stop
                 $toastLogo = $iconPath
             } catch {
                 Write-Verbose -Message "Warning! Unable to get icon from '$($PackageUpdateInfo.IconUri)' for module '$($PackageUpdateInfo.Name)'"
