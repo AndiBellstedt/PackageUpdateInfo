@@ -34,4 +34,7 @@ $global:MayContainCommand = @{
     "Write-Output"      = @()
     "Write-Information" = @()
     "Write-Debug"       = @()
+}global:MayContainCommand = @{
+    "Write-Output"      = @()
+    "Invoke-Expression" = @('prerequisites.ps1')
 }

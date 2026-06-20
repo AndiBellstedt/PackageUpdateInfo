@@ -53,7 +53,7 @@ Describe "Verifying integrity of module files" {
 
             $tokens = $null
             $parseErrors = $null
-            $ast = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
+            $null = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
 
             It "[$name] Should have no syntax errors" -TestCases @{ parseErrors = $parseErrors } {
                 $parseErrors | Should -BeNullOrEmpty
