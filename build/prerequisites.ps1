@@ -4,7 +4,10 @@ Uses PSFramework.Nuget to install all modules required to run the pipeline.
 [CmdletBinding()]
 param (
     [string]
-    $Repository = 'PSGallery'
+    $Repository = 'PSGallery',
+
+    [string[]]
+    $OptionalModules = @("BurntToast")
 )
 
 Invoke-WebRequest 'https://raw.githubusercontent.com/PowershellFrameworkCollective/PSFramework.NuGet/refs/heads/master/bootstrap.ps1' -UseBasicParsing | Invoke-Expression
@@ -13,12 +16,13 @@ Install-PSFPowerShellGet
 $modules = @(
     'Pester' # Testing Framework
     'PSScriptAnalyzer' # Best Practices Analyzer used during tests
-    #'Microsoft.PowerShell.PlatyPS' # Generate docs from help
     #'PSModuleDevelopment' # Potentially used in Tests or Publish
+    #'Microsoft.PowerShell.PlatyPS' # Generate docs from help
 )
+$modules = $modules + $OptionalModules
 
 # Automatically add missing dependencies
-$data = Import-PowerShellDataFile -Path "$PSScriptRoot\..\PackageUpdateInfo\PackageUpdateInfo.psd1"
+$data = Import-PowerShellDataFile -Path (Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath "..\PackageUpdateInfo\PackageUpdateInfo.psd1")).Path
 foreach ($dependency in $data.RequiredModules) {
     if ($dependency -is [string]) {
         if ($modules -contains $dependency) { continue }
