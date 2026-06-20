@@ -122,6 +122,15 @@
 
         Reset module to it'S default behaviour
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Setting
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/set-packageupdatesetting/
+
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [Alias('spus')]

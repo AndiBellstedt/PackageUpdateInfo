@@ -83,6 +83,15 @@
 
         Add a new custom rule for "MyModule" to supress notifications on revision updates of the module
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Rule
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/set-packageupdaterule/
+
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = "ById")]
     [Alias('spur')]

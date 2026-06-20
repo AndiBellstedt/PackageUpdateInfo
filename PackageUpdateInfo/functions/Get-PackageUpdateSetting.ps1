@@ -18,6 +18,15 @@
 
         Get the current settings on PackageUpdateInfo behaviour.
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Setting
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/get-packageupdatesetting/
+
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [Alias('gpus')]

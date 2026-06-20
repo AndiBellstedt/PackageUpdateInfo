@@ -110,13 +110,13 @@
             LicenseUri   = 'https://github.com/AndiBellstedt/PackageUpdateInfo/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri   = 'https://github.com/AndiBellstedt/PackageUpdateInfo'
+            ProjectUri   = 'https://packageupdateinfo.andibellstedt.com/'
 
             # A URL to an icon representing this module.
             IconUri      = 'https://github.com/AndiBellstedt/PackageUpdateInfo/raw/Development/assets/PackageUpdateInfo_128x128.png'
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'https://github.com/AndiBellstedt/PackageUpdateInfo/blob/master/PackageUpdateInfo/changelog.md'
+            ReleaseNotes = 'https://packageupdateinfo.andibellstedt.com/changelog/'
 
         } # End of PSData hashtable
 

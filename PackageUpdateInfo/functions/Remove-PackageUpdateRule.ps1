@@ -35,6 +35,15 @@
 
         Remove all custom rules for module update handling.
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Rule
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/remove-packageupdaterule/
+
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High', DefaultParameterSetName = "ById")]
     [Alias('rpur')]

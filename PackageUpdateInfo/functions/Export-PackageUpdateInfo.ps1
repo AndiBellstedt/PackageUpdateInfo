@@ -47,6 +47,16 @@
         PS C:\> Get-PackageUpdateInfo | Export-PackageUpdateInfo
 
         Example for usage of Export-PackageUpdateInfo
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Export
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/export-packageupdateinfo/
+
     #>
     [CmdletBinding( SupportsShouldProcess = $true,
         ConfirmImpact = 'Medium')]

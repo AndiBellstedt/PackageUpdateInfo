@@ -21,12 +21,21 @@
     .EXAMPLE
         PS C:\> Get-PackageUpdateInfo | Show-PackageUpdateReleaseNote
 
-        Get release notes out of PackageUpdateInfo objects
+        Get release notes from PackageUpdateInfo objects
 
     .EXAMPLE
         PS C:\> Get-Module PackageUpdateInfo | Show-PackageUpdateReleaseNote
 
-        Get relase notes from a module
+        Get release notes from a module
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, ReleaseNote
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/show-packageupdatereleasenote/
 
     #>
     [CmdletBinding( SupportsShouldProcess = $true,

@@ -80,6 +80,15 @@
 
         Add a new custom rule for "MyModule" to supress notifications on revision updates of the module
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Rule
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/add-packageupdaterule/
+
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [Alias('apur')]
@@ -184,7 +193,7 @@
             $SettingObject | ConvertFrom-PackageUpdateSetting | ConvertTo-Json | Out-File -FilePath $SettingObject.Path -Encoding default -Force
         }
 
-        if($PassThru) {
+        if ($PassThru) {
             [PackageUpdate.ModuleRule]$rule
         }
     }

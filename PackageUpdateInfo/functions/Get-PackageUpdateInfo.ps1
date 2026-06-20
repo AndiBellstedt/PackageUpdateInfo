@@ -59,6 +59,15 @@
         This also can be done with Get-Module cmdlet:
         Get-Module "Pester", "PSReadline" | Get-PackageUpdateInfo
 
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/get-packageupdateinfo/
+
     #>
     [CmdletBinding( DefaultParameterSetName = 'DefaultSet1',
         SupportsShouldProcess = $false,

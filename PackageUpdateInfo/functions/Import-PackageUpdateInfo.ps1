@@ -34,6 +34,16 @@
         PS C:\> Import-PackageUpdateInfo
 
         Try to import the default file "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml"
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Info
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/import-packageupdateinfo/
+
     #>
     [CmdletBinding( SupportsShouldProcess = $true,
         ConfirmImpact = 'Low')]
@@ -60,13 +70,13 @@
     )
 
     begin {
-        if($ShowToastNotification -and (-not $script:EnableToastNotification)) {
+        if ($ShowToastNotification -and (-not $script:EnableToastNotification)) {
             Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
         }
 
         # Set path variable to default value, when not specified
-        if(-not $path) {
-            if($IsLinux) {
+        if (-not $path) {
+            if ($IsLinux) {
                 $path = (Join-Path $HOME ".local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")
             } else {
                 $path = (Join-Path $HOME "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).xml")

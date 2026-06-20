@@ -19,7 +19,7 @@
         Default value is: "*"
 
     .PARAMETER IncludeDefaultRule
-        Outputs the DefautRule from the setting object, in addition to the customrules
+        Outputs the DefaultRule from the setting object, in addition to the custom rules
 
     .PARAMETER SettingObject
         Settings object parsed in from command Get-PackageUpdateSetting
@@ -35,6 +35,15 @@
         PS C:\> Get-PackageUpdateRule -Id 1
 
         Get all the custom rule with Id 1
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Rule
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/get-packageupdaterule/
 
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low', DefaultParameterSetName = "ShowAll")]
