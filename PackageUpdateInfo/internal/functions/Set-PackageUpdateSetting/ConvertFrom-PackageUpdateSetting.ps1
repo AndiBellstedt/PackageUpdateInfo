@@ -18,6 +18,7 @@
         Check if URI is a URI that can be covered for plain text release notes
     #>
     [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ParameterSetName = "SetBehaviour")]
         [PackageUpdate.Configuration]

@@ -53,7 +53,7 @@ PackageUpdateInfo/
 
 
 ### Build System
-Located in `build/` directory, uses PSFramework.NuGet tooling:
+Located in `build/` directory:
 
 1. **Prerequisites**: `.\build\prerequisites.ps1` - Installs dependencies (Pester, PSScriptAnalyzer, PSModuleDevelopment)
 2. **Validate**: `.\build\validate.ps1` - Runs Pester tests via `tests\pester.ps1`
@@ -77,10 +77,10 @@ Tests organized as:
 - `tests/general/` - Manifest validation, PSScriptAnalyzer, file integrity, help completeness
 - `tests/functions/` - Per-function tests (when created)
 
-**Testing Pattern**: 
+**Testing Pattern**:
 - Uses Pester 5.x with `[PesterConfiguration]`, outputs JUnit XML to `TestResults/`.
 - Create and maintain tests for each function in `tests/functions/` with the same name as the function file (e.g. `Get-PackageUpdateInfo.Tests.ps1` for `Get-PackageUpdateInfo.ps1`).
-- Each function specific test file has to contain at least two describe blocks: 
+- Each function specific test file has to contain at least two describe blocks:
   - A Describe block with "%functionname% - Parameter Contract" that validate the defined parameter names and types (principal of parameter contract)
   - A Describe block with "%functionname% - Functionality" that tests the actual functionality of the function. (unit tests, integration tests, etc.)
 
