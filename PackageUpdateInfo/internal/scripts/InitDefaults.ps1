@@ -1,6 +1,6 @@
 ﻿# Place all code that should be run after functions are imported here
 
-$script:ModuleIconPath = Join-Path -Path $script:ModuleRoot -ChildPath "\bin\PackageUpdateInfo.png"
+$script:ModuleIconPath = Join-Path -Path $script:ModuleRoot -ChildPath "\assets\PackageUpdateInfo.png"
 
 if ($isLinux) {
     $script:ModuleTempPath = Join-Path -Path "/tmp" -ChildPath "PackageUpdateInfo"
