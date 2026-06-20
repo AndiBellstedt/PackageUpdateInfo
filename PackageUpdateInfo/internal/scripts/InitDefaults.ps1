@@ -2,9 +2,9 @@
 
 $script:ModuleIconPath = Join-Path -Path $script:ModuleRoot -ChildPath "\assets\PackageUpdateInfo.png"
 
-if ($isLinux) {
+if ($IsLinux -or $IsMacOS) {
     $script:ModuleTempPath = Join-Path -Path "/tmp" -ChildPath "PackageUpdateInfo"
-    $script:ModuleSettingPath = Join-Path -Path $HOME -ChildPath ".local/share/powershell/PackageUpdateInfo/PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
+    $script:ModuleSettingPath = Join-Path -Path $HOME -ChildPath ".config/powershell/PackageUpdateInfo/PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
 } else {
     $script:ModuleTempPath = Join-Path -Path $env:TEMP -ChildPath "PackageUpdateInfo"
     $script:ModuleSettingPath = Join-Path -Path $HOME -ChildPath "AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
