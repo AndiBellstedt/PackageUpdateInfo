@@ -4,17 +4,9 @@ $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\
 # Detect whether at some level dotsourcing was enforced
 if ($PackageUpdateInfo_dotsourcemodule) { $script:doDotSource = $true } else { $script:doDotSource = $false }
 
-<#
-Note on Resolve-Path:
-All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
-This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
-Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
-This is important when testing for paths.
-#>
-
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
-if ($PackageUpdateInfo_importIndividualFiles) { $importIndividualFiles = $true } else { $importIndividualFiles = $false}
-if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) { $importIndividualFiles = $true }
+if ($PackageUpdateInfo_importIndividualFiles) { $importIndividualFiles = $true } else { $importIndividualFiles = $false }
+if (Test-Path -Path (Resolve-Path -Path "$($script:ModuleRoot)\..\.git" -ErrorAction SilentlyContinue).Path -ErrorAction SilentlyContinue) { $importIndividualFiles = $true }
 if ("<was not compiled>" -eq '<was not compiled>') { $importIndividualFiles = $true }
 
 function Import-ModuleFile {
