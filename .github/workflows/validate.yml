@@ -1,0 +1,83 @@
+﻿name: Validate code with Pester
+
+on:
+  push:
+    branches-ignore:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-windows-ps51:
+    name: Pester testing on Windows with PowerShell 5.1
+    if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 5.1)
+        run: .\build\prerequisites.ps1
+        shell: powershell
+
+      - name: Validate (PowerShell 5.1)
+        run: .\build\validate.ps1
+        shell: powershell
+
+  validate-windows-ps7-no-burnttoast:
+    name: Pester testing on Windows with PowerShell 7 without BurntToast
+    if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 7)
+        run: .\build\prerequisites.ps1 -OptionalModules @()
+        shell: pwsh
+
+      - name: Validate (PowerShell 7)
+        run: .\build\validate.ps1
+        shell: pwsh
+
+  validate-windows-ps7-with-burnttoast:
+    name: Pester testing on Windows with PowerShell 7 BurntToast included
+    if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 7)
+        run: .\build\prerequisites.ps1
+        shell: pwsh
+
+      - name: Validate (PowerShell 7)
+        run: .\build\validate.ps1
+        shell: pwsh
+
+  validate-linux-ps7:
+    name: Pester testing on Linux with PowerShell 7
+    if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 7)
+        run: ./build/prerequisites.ps1
+        shell: pwsh
+
+      - name: Validate (PowerShell 7)
+        run: ./build/validate.ps1
+        shell: pwsh

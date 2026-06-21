@@ -4,7 +4,7 @@ $global:BannedCommands = @(
     #'Write-Verbose'
     #'Write-Warning'
     #'Write-Error'
-    #'Write-Output'
+    'Write-Output'
     #'Write-Information'
     #'Write-Debug'
 
@@ -27,11 +27,13 @@ $global:BannedCommands = @(
     "Write-Host"  = @('Write-PSFHostColor.ps1','Write-PSFMessage.ps1')
 #>
 $global:MayContainCommand = @{
-    "Write-Host"        = @()
-    "Write-Verbose"     = @()
-    "Write-Warning"     = @()
-    "Write-Error"       = @()
+    #"Write-Host"        = @()
+    #"Write-Verbose"     = @()
+    #"Write-Warning"     = @()
+    #"Write-Error"       = @()
+    #"Write-Output"      = @()
+    #"Write-Information" = @()
+    #"Write-Debug"       = @()
     "Write-Output"      = @()
-    "Write-Information" = @()
-    "Write-Debug"       = @()
+    "Invoke-Expression" = @('prerequisites.ps1')
 }

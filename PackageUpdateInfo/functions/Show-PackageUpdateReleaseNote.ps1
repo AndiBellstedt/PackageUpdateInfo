@@ -1,16 +1,17 @@
 ﻿function Show-PackageUpdateReleaseNote {
     <#
     .SYNOPSIS
-        Show release notes from a module
+        Displays release notes for one or more PowerShell modules.
 
     .DESCRIPTION
-        Show release notes from a module.
+        Retrieves and displays release notes for module information objects produced by Get-PackageUpdateInfo or Import-PackageUpdateInfo, or for module objects returned by Get-Module.
+        When release notes are available as a URL, the cmdlet attempts to resolve and retrieve the content so that the notes can be presented directly to the caller.
 
     .PARAMETER InputObject
-        Input object(s) from Get-PackageUpdateInfo or Import-PackageUpdateInfo to show release notes
+        One or more PackageUpdateInfo objects from Get-PackageUpdateInfo or Import-PackageUpdateInfo that contain release note information.
 
     .PARAMETER Module
-        Input object(s) from Get-Module to show release notes
+        One or more module objects from Get-Module that contain release notes metadata or a release notes URL.
 
     .PARAMETER WhatIf
         If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
@@ -21,12 +22,31 @@
     .EXAMPLE
         PS C:\> Get-PackageUpdateInfo | Show-PackageUpdateReleaseNote
 
-        Get release notes out of PackageUpdateInfo objects
+        Retrieves release notes for each module returned by Get-PackageUpdateInfo.
 
     .EXAMPLE
         PS C:\> Get-Module PackageUpdateInfo | Show-PackageUpdateReleaseNote
 
-        Get relase notes from a module
+        Retrieves release notes for the PackageUpdateInfo module from the current PowerShell session.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateInfo -Name PackageUpdateInfo | Show-PackageUpdateReleaseNote
+
+        Displays the release notes for a specific module using the output from Get-PackageUpdateInfo.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateInfo | Show-PackageUpdateReleaseNote -WhatIf
+
+        Shows which modules would be processed for release note retrieval without performing the operation.
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, ReleaseNote
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/show-packageupdatereleasenote/
 
     #>
     [CmdletBinding( SupportsShouldProcess = $true,
@@ -45,10 +65,10 @@
         $Module
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         $modulesToProcess = @()
 
         # Process input pipeline for PackageUpdateInfo objects
@@ -79,10 +99,12 @@
 
         # Working through the module objects
         foreach ($item in $modulesToProcess) {
+
             if ($pscmdlet.ShouldProcess($item.Name, "Show release notes")) {
 
                 # If release notes are an URL, try to gather release notes from web site
                 if ($item.ReleaseNotesIsURI) {
+
                     # Set basic variables
                     $msgUnableToGather = "Unable to gather release notes from website. Please use a browser to visit: $($item.ReleaseNotesURI)"
                     $paramInvokeWebRequest = @{
@@ -94,6 +116,7 @@
                     # if url points to a file on a github repo, it is possible to get plain text information
                     # in other cases, the url will be tried to resolve and double check if it is a github repo (quicklinks/ forwardings)
                     switch ($item.ReleaseNotesURI) {
+
                         { Assert-PossibleReleaseNotesURI -URI $_ } {
                             if ($item.ReleaseNotesURI -like "*/releases/*") {
                                 # Github release pages can't be covered. Set unable-message
@@ -148,15 +171,20 @@
 
                             }
                         }
+
                     }
+
                 }
 
                 # Output result item
                 $item
+
             }
+
         }
+
     }
 
-    end {
-    }
+    end {}
+
 }

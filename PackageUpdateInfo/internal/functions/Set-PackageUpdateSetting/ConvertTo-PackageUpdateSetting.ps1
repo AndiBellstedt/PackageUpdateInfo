@@ -1,10 +1,12 @@
 ﻿function ConvertTo-PackageUpdateSetting {
     <#
     .SYNOPSIS
-        ConvertFrom-PackageUpdateSetting
+        Convert from a PSCustomObject to a PackageUpdateSetting object
 
     .DESCRIPTION
-        Convert from a PackageUpdateSetting object to a PSCustomObject
+        This function takes a PSCustomObject and converts it to a PackageUpdateSetting object.
+        The function iterates through the properties of the input object and adds them to a new ordered hashtable.
+        The resulting hashtable is then cast to a PackageUpdateSetting object.
 
     .PARAMETER InputObject
         PSCustomObject object to convert
@@ -13,6 +15,18 @@
         PS C:\> Get-PackageUpdateSetting | ConvertFrom-PackageUpdateSetting | ConvertTo-PackageUpdateSetting
 
         Check if URI is a URI that can be covered for plain text release notes
+
+    .OUTPUTS
+        [PackageUpdate.Configuration] - The resulting PackageUpdateSetting object with the properties of the input object.
+
+    .NOTES
+        Version  : 1.0.0.0
+        Author   : Andreas Bellstedt
+        Date     : 2019-12-28
+        Keywords : PackageUpdateInfo, ConvertTo, PackageUpdateSetting
+
+    .LINK
+        https://github.com/AndiBellstedt/PackageUpdateInfo
     #>
     [CmdletBinding()]
     [OutputType([PackageUpdate.Configuration])]
@@ -22,10 +36,10 @@
         $InputObject
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         $hash = [ordered]@{ }
 
         foreach ($property in $InputObject.psobject.Properties) {
@@ -33,8 +47,8 @@
         }
 
         [PackageUpdate.Configuration]$hash
+
     }
 
-    end {
-    }
+    end {}
 }

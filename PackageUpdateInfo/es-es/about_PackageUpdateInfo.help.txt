@@ -1,0 +1,519 @@
+﻿TOPIC
+    about_PackageUpdateInfo
+
+SHORT DESCRIPTION
+    PackageUpdateInfo es un módulo de PowerShell que ayuda a los profesionales de IT a
+    mantener actualizados sus módulos de PowerShell instalados detectando actualizaciones
+    disponibles de repositorios configurados y proporcionando información de cambios de versión
+    detallada y notas de versión.
+
+LONG DESCRIPTION
+    PackageUpdateInfo aborda una preocupación operativa crítica para profesionales de IT que
+    mantienen múltiples módulos de PowerShell en su entorno. Este módulo consulta sus módulos
+    de PowerShell instalados localmente, los compara con uno o más repositorios configurados
+    (como la Galería de PowerShell) e informa sobre actualizaciones disponibles con control
+    granular sobre qué cambios de versión le interesan.
+
+PROJECT OVERVIEW
+
+    Los entornos informáticos modernos a menudo se basan en módulos de PowerShell desarrollados
+    por la comunidad para ampliar la funcionalidad y automatizar tareas comunes. Mantener estos
+    módulos actualizados requiere una forma práctica de identificar cuándo hay actualizaciones
+    disponibles y decidir qué cambios de versión merece la pena desplegar.
+
+    PackageUpdateInfo proporciona:
+    - Detección de actualizaciones en todos los módulos instalados
+    - Control granular sobre qué cambios de versión reportar (Mayor, Menor, Compilación, Revisión)
+    - Reglas basadas por módulo o grupo para reportes de actualización personalizados
+    - Capacidad eficiente de exportación/importación para descargar verificaciones de actualización
+      en trabajos en segundo plano o tareas programadas
+    - Integración con notificaciones de Windows (cuando esté disponible)
+    - Acceso a notas de versión para módulos que las proporcionan
+
+INSTALLATION
+
+    Instale el módulo desde la Galería de PowerShell en su ámbito de usuario (recomendado para
+    escenarios sin privilegios de administrador):
+
+        Install-Module PackageUpdateInfo -Scope CurrentUser
+
+    O instale en todo el sistema (requiere privilegios de administrador):
+
+        Install-Module PackageUpdateInfo
+
+    Después de la instalación, puede verificar los comandos disponibles:
+
+        Get-Command -Module PackageUpdateInfo
+
+QUICK START: INTERACTIVE USAGE
+
+    Para verificar todos sus módulos instalados en busca de actualizaciones disponibles
+    inmediatamente, ejecute:
+
+        Get-PackageUpdateInfo
+
+    Este comando consulta todos los módulos descubiertos por sus reglas de inclusión predeterminadas
+    y muestra una tabla que muestra el nombre del módulo, fuente del repositorio, versión instalada,
+    versión disponible en línea e indica si se necesita una actualización. Salida de ejemplo:
+
+        Name       Repository VersionInstalled VersionOnline NeedUpdate Path
+        ----       ---------- ---------------- ------------- ---------- ----
+        PSReadline PSGallery  1.2              1.2           False      C:\Program Files\...
+        Pester     PSGallery  4.4.0            4.4.2         True       C:\Program Files\...
+
+    Para enfocarse solo en módulos que tienen actualizaciones disponibles, use:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate
+
+    Para ver notificaciones de Windows para módulos con actualizaciones disponibles:
+
+        Get-PackageUpdateInfo -ShowToastNotification
+
+CORE CONCEPTS
+
+    Entendiendo la Detección de Actualizaciones
+
+    Get-PackageUpdateInfo realiza tres comprobaciones esenciales:
+
+    1. Descubre todos los módulos instalados en sus rutas de módulos de PowerShell
+    2. Consulta uno o más repositorios (por defecto, todos los PSRepositorios configurados) para
+       las versiones disponibles de esos módulos
+    3. Compara versiones instaladas con versiones disponibles para determinar si existe una
+       actualización
+
+    El comando respeta un intervalo de verificación de actualizaciones (predeterminado: 1 hora)
+    para minimizar consultas redundantes a repositorios. Use el parámetro -Force para omitir
+    este intervalo:
+
+        Get-PackageUpdateInfo -Force
+
+    Reporte de Cambios de Versión
+
+    PackageUpdateInfo divide las versiones de módulos en cuatro componentes: Mayor, Menor,
+    Compilación y Revisión. Por ejemplo, la versión 1.2.3.4 tiene:
+
+        Component   Value
+        ---------   -----
+        Mayor       1
+        Menor       2
+        Compilación 3
+        Revisión    4
+
+    De forma predeterminada, los cuatro componentes se supervisan, lo que significa que se
+    reporta cualquier cambio de versión. Sin embargo, puede personalizar este comportamiento.
+    Por ejemplo, podría querer ignorar actualizaciones de revisión (correcciones de nivel de
+    parche) pero marcar cambios mayores y menores. Este enfoque granular le ayuda a distinguir
+    entre actualizaciones críticas, lanzamientos de características y parches de mantenimiento menores.
+
+    Notas de Versión y Acceso a Cambios
+
+    Muchos módulos en la Galería de PowerShell incluyen metadatos de notas de versión.
+    PackageUpdateInfo captura esta información al ejecutar Get-PackageUpdateInfo. Luego puede
+    recuperar y revisar estas notas de versión usando Show-PackageUpdateReleaseNote para entender
+    qué cambió en cada actualización antes de implementarla:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Show-PackageUpdateReleaseNote
+
+    Las notas de versión a menudo se proporcionan como URLs. El comando Show-PackageUpdateReleaseNote
+    intenta resolver y recuperar el contenido para que pueda revisar cambios directamente en su
+    consola de PowerShell.
+
+MAIN WORKFLOW: CORE FUNCTIONS
+
+    Las siguientes funciones forman el flujo de trabajo principal para trabajar con PackageUpdateInfo.
+
+    Getting Update Information: Get-PackageUpdateInfo
+
+    Get-PackageUpdateInfo es la función de descubrimiento principal. Úsela para:
+    - Verificar todos los módulos instalados (predeterminado): Get-PackageUpdateInfo
+    - Verificar módulos específicos: Get-PackageUpdateInfo -Name Pester, PSReadline
+    - Verificar módulos de ámbito de usuario: Get-PackageUpdateInfo -CurrentUser
+    - Verificar módulos de todos los usuarios: Get-PackageUpdateInfo -AllUsers
+    - Consultar repositorios específicos: Get-PackageUpdateInfo -Repository PSGallery
+    - Omitir el intervalo de verificación de actualizaciones: Get-PackageUpdateInfo -Force
+
+    El comando devuelve objetos PackageUpdate.Info que contienen:
+
+        Name           - Nombre del módulo
+        Repository     - Repositorio donde se encontró la versión más nueva
+        VersionInstalled - Versión actualmente instalada
+        VersionOnline  - Última versión disponible en el repositorio
+        NeedUpdate     - Valor booleano que indica si hay una actualización disponible
+        Path           - Ruta completa al módulo instalado
+        ReleaseNotes   - URL a notas de versión (si está disponible)
+
+    Exporting Update Information: Export-PackageUpdateInfo
+
+    Por razones de rendimiento, especialmente si tiene muchos módulos instalados, puede separar
+    la verificación de actualización computacionalmente costosa de los reportes interactivos.
+    Use Export-PackageUpdateInfo para guardar información de actualización en un archivo:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Export-PackageUpdateInfo
+
+    De forma predeterminada, el archivo de exportación se almacena en un directorio específico
+    del módulo:
+    - Windows: $HOME\AppData\Local\Microsoft\Windows\PowerShell\
+    - Linux: $HOME/.config/powershell/
+
+    Los archivos de exportación se nombran con información de edición y versión para evitar
+    conflictos al ejecutar múltiples ediciones de PowerShell en el mismo sistema.
+
+    Importing Cached Update Information: Import-PackageUpdateInfo
+
+    Después de exportar información de actualización, puede recuperarla rápidamente del caché
+    sin ejecutar las costosas verificaciones de actualización nuevamente:
+
+        Import-PackageUpdateInfo
+
+    Esto es útil para inicios rápidos de sesión de PowerShell o para revisar resultados en caché
+    sin consultar repositorios nuevamente. Use -ShowOnlyNeededUpdate para filtrar resultados:
+
+        Import-PackageUpdateInfo -ShowOnlyNeededUpdate
+
+    O muestre notificaciones para resultados en caché:
+
+        Import-PackageUpdateInfo -ShowToastNotification
+
+    A Typical Performance-Optimized Workflow
+
+    Para entornos donde la verificación de actualización no debería bloquear el inicio interactivo
+    del shell, agregue lo siguiente a su perfil de PowerShell:
+
+        Start-Job -ScriptBlock {
+            Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Export-PackageUpdateInfo
+        } | Out-Null
+        Import-PackageUpdateInfo
+
+    Este enfoque:
+    1. Inicia un trabajo en segundo plano asincrónico que realiza la costosa verificación de actualización
+    2. Devuelve inmediatamente el control a su shell
+    3. Muestra información de actualización en caché de la sesión anterior de PowerShell
+    4. El trabajo en segundo plano se completa y actualiza el caché para su próxima sesión
+
+CONFIGURING UPDATE BEHAVIOR: SETTINGS
+
+    Las funciones Set-PackageUpdateSetting y Get-PackageUpdateSetting controlan cómo
+    PackageUpdateInfo evalúa los módulos. Los ajustes se almacenan en un archivo de
+    configuración JSON persistente en su directorio de perfil y se aplican globalmente a
+    todos los comandos de PackageUpdateInfo.
+
+    Viewing Current Settings
+
+        Get-PackageUpdateSetting
+
+    Devuelve un objeto PackageUpdate.Configuration que muestra:
+    - DefaultRule: La regla aplicada a módulos que no coinciden con reglas personalizadas
+    - CustomRule: Cualquier regla personalizada que haya creado
+    - UpdateCheckInterval: Tiempo mínimo entre verificaciones de actualización
+    - LastCheck: Marca de tiempo del intento de verificación de actualización más reciente
+    - LastSuccessfulCheck: Marca de tiempo de la verificación de actualización más reciente exitosa
+
+    Configuring the Default Rule
+
+    La regla predeterminada se aplica a todos los módulos por defecto. Use Set-PackageUpdateSetting
+    para personalizar el comportamiento predeterminado:
+
+    Excluya módulos específicos de la verificación de actualización:
+
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalModule"
+
+    Esto es útil para módulos locales no disponibles en galerías en línea. Los módulos excluidos
+    se omiten completamente durante las consultas Get-PackageUpdateInfo.
+
+    Reporte solo en cambios de versión mayor y menor, ignorando actualizaciones de compilación
+    y revisión:
+
+        Set-PackageUpdateSetting -ReportChangeOnMajor $true -ReportChangeOnMinor $true `
+            -ReportChangeOnBuild $false -ReportChangeOnRevision $false
+
+    Ajuste el intervalo de verificación de actualización (predeterminado: 1 hora):
+
+        Set-PackageUpdateSetting -UpdateCheckInterval "02:00:00"
+
+    Esto establece el intervalo a 2 horas, reduciendo consultas a repositorios para llamadas
+    repetidas a Get-PackageUpdateInfo dentro de una ventana de 2 horas.
+
+    Reset to Default Behavior
+
+        Set-PackageUpdateSetting -Reset
+
+MANAGING CUSTOM RULES: RULE FUNCTIONS
+
+    Para un control granular sobre módulos específicos o grupos de módulos, use reglas
+    personalizadas. Las reglas le permiten definir diferentes comportamientos de reporte
+    de actualización para diferentes módulos o conjuntos de módulos, anulando la regla predeterminada.
+
+    Creating a Custom Rule: Add-PackageUpdateRule
+
+    Agregue una regla que reporte actualizaciones mayores y menores para un módulo específico,
+    pero ignore cambios de compilación y revisión:
+
+        Add-PackageUpdateRule -IncludeModuleForChecking "ImportExcel" `
+            -ReportChangeOnMajor $true -ReportChangeOnMinor $true `
+            -ReportChangeOnBuild $false -ReportChangeOnRevision $false
+
+    Agregue una regla que excluya un módulo específico de la verificación:
+
+        Add-PackageUpdateRule -ExcludeModuleFromChecking "MyInternalModule"
+
+    Agregue una regla para un grupo de módulos, como todos los módulos Az.*:
+
+        Add-PackageUpdateRule -ExcludeModuleFromChecking "Az.*"
+
+    Nota: Tenga cuidado con exclusiones amplias. Los módulos de Az se mantienen activamente;
+    considere si la exclusión generalizada cumple con sus necesidades operativas.
+
+    Viewing Custom Rules: Get-PackageUpdateRule
+
+        Get-PackageUpdateRule
+
+    Devuelve todas las reglas personalizadas. Cada regla muestra:
+    - Id: Identificador único para la regla
+    - IncludeModuleForChecking: Módulos cubiertos por esta regla (o vacío para todos)
+    - ExcludeModuleFromChecking: Módulos excluidos por esta regla
+    - ReportChangeOn{Major,Minor,Build,Revision}: Qué cambios reportar
+
+    Modifying a Rule: Set-PackageUpdateRule
+
+        Set-PackageUpdateRule -Id 1 -ReportChangeOnRevision $false
+
+    Removing a Rule: Remove-PackageUpdateRule
+
+        Remove-PackageUpdateRule -Id 1
+
+    Rule Priority and Application
+
+    Las reglas personalizadas se evalúan en orden descendente por su Id. Cuando
+    Get-PackageUpdateInfo evalúa un módulo, encuentra la primera (Id más alta) regla
+    personalizada que coincide con el nombre del módulo. Si ninguna regla personalizada coincide,
+    se aplica la regla predeterminada.
+
+    Este diseño le permite crear anulaciones específicas para módulos seleccionados mientras
+    mantiene valores predeterminados sensatos para todos los demás.
+
+    VIEWING RELEASE NOTES: Show-PackageUpdateReleaseNote
+
+    Después de identificar módulos que necesitan actualizaciones, revise notas de versión para
+    entender qué cambió:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Show-PackageUpdateReleaseNote
+
+    O recupere notas de versión para datos en caché ya importados:
+
+        Import-PackageUpdateInfo | Show-PackageUpdateReleaseNote
+
+    O vea notas de versión para el módulo actualmente cargado en su sesión:
+
+        Get-Module Pester | Show-PackageUpdateReleaseNote
+
+    El comando Show-PackageUpdateReleaseNote recupera y muestra notas de versión desde URLs
+    disponibles. El contenido de las notas de versión aparece directamente en su consola,
+    ayudándole a decidir si desplegar cada actualización.
+
+PERFORMANCE CONSIDERATIONS
+
+    La verificación de actualización puede ser computacionalmente costosa si tiene muchos módulos
+    instalados o si las conexiones de repositorio son lentas. Considere estas prácticas:
+
+    1. Use el intervalo de verificación de actualización (Set-PackageUpdateSetting -UpdateCheckInterval)
+       para limitar consultas redundantes a repositorios.
+
+    2. Exporte verificaciones de actualización a trabajos en segundo plano (como se muestra en el
+       ejemplo de flujo de trabajo) para que el inicio interactivo del shell no se bloquee.
+
+    3. Excluya módulos no encontrados en galerías en línea para evitar consultas de repositorio
+       desperdiciadas:
+
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalModule"
+
+    4. Para inventarios de módulos grandes, ejecute Get-PackageUpdateInfo -ShowOnlyNeededUpdate |
+       Export-PackageUpdateInfo de forma regular (p. ej., cada noche), luego use
+       Import-PackageUpdateInfo durante sesiones interactivas para recuperar resultados en caché.
+
+BEST PRACTICES AND AUTOMATION
+
+    Scheduled Update Checking
+
+    Use el Programador de Tareas de Windows u otra herramienta de orquestación de trabajos para
+    ejecutar verificaciones de actualización en segundo plano de forma regular, luego almacene
+    en caché los resultados:
+
+        $scriptBlock = {
+            Get-PackageUpdateInfo -Force -ShowOnlyNeededUpdate |
+                Export-PackageUpdateInfo
+        }
+        Start-Job -ScriptBlock $scriptBlock
+
+    Environment-Based Rules
+
+    Cree diferentes reglas personalizadas para entornos de desarrollo y producción. Por ejemplo,
+    en producción podría reportar solo cambios de versión mayor, mientras que en desarrollo
+    rastrea todos los cambios:
+
+        if ($env:ENVIRONMENT -eq 'Production') {
+            Set-PackageUpdateSetting -ReportChangeOnMajor $true `
+                -ReportChangeOnMinor $false -ReportChangeOnBuild $false `
+                -ReportChangeOnRevision $false
+        }
+
+    Update Approval Workflows
+
+    Combine PackageUpdateInfo con su proceso de gestión de cambios:
+
+        $updates = Get-PackageUpdateInfo -ShowOnlyNeededUpdate
+        $updates | Show-PackageUpdateReleaseNote
+        # Review release notes and approve updates
+        $updates | Select-Object Name, VersionOnline | Export-Csv -Path "ApprovedUpdates.csv"
+
+    Alert Integration
+
+    Use notificaciones para alertarse a sí mismo cuando módulos críticos tengan actualizaciones:
+
+        if (@(Get-PackageUpdateInfo -ShowOnlyNeededUpdate |
+              Where-Object Name -In 'Pester','PSFramework').Count -gt 0) {
+            Get-PackageUpdateInfo -ShowOnlyNeededUpdate -ShowToastNotification
+        }
+
+GETTING HELP
+
+    Para obtener ayuda detallada sobre cualquier comando, use:
+
+        Get-Help Get-PackageUpdateInfo -Full
+        Get-Help Set-PackageUpdateSetting -Full
+        Get-Help Add-PackageUpdateRule -Full
+        Get-Help Show-PackageUpdateReleaseNote -Full
+
+    Aliases for Quick Access
+
+    La mayoría de los comandos tienen alias convenientes para escribir más rápido:
+
+        gpui  = Get-PackageUpdateInfo
+        epui  = Export-PackageUpdateInfo
+        ipui  = Import-PackageUpdateInfo
+        spurn = Show-PackageUpdateReleaseNote
+        gpus  = Get-PackageUpdateSetting
+        spus  = Set-PackageUpdateSetting
+        apur  = Add-PackageUpdateRule
+        gpur  = Get-PackageUpdateRule
+        spur  = Set-PackageUpdateRule
+        rpur  = Remove-PackageUpdateRule
+
+TROUBLESHOOTING
+
+    Update Check is Skipped with Warning
+
+    Síntoma: Get-PackageUpdateInfo devuelve una advertencia de que se omitió la verificación
+    de actualización.
+
+    Causa: El módulo aplica un intervalo de verificación de actualización (predeterminado: 1 hora)
+    para evitar consultas redundantes a repositorios. Si ejecuta el comando varias veces dentro
+    del intervalo, las llamadas posteriores se suprimen para proteger el rendimiento del sistema
+    y los recursos de la galería.
+
+    Solución: Use el parámetro -Force para omitir el intervalo y realizar una verificación
+    inmediata:
+
+        Get-PackageUpdateInfo -Force
+
+    O ajuste el intervalo a una duración más corta:
+
+        Set-PackageUpdateSetting -UpdateCheckInterval "00:15:00"
+
+    No Modules Are Returned
+
+    Síntoma: Get-PackageUpdateInfo devuelve una lista vacía aunque tenga módulos instalados.
+
+    Causa: Muy probablemente, todos los módulos instalados han sido excluidos de la verificación
+    por reglas, o no hay repositorios predeterminados configurados en su sistema.
+
+    Solución: Primero, verifique que los repositorios estén disponibles:
+
+        Get-PSRepository
+
+    Si no se muestran repositorios, agregue la Galería de PowerShell:
+
+        Register-PSRepository -Default
+
+    Verifique sus reglas configuradas:
+
+        Get-PackageUpdateSetting
+
+    Revise tanto la DefaultRule como cualquier CustomRule para asegurarse de que los módulos
+    no están excluidos. Si es necesario, restablezca la configuración:
+
+        Set-PackageUpdateSetting -Reset
+
+    Modules Are Excluded from Checking Unexpectedly
+
+    Síntoma: Módulos específicos no aparecen en la salida Get-PackageUpdateInfo aunque estén
+    instalados.
+
+    Causa: Una regla personalizada o la regla predeterminada ha excluido estos módulos de la
+    verificación.
+
+    Solución: Verifique qué reglas se aplican al módulo:
+
+        Get-PackageUpdateRule
+        Get-PackageUpdateSetting
+
+    Si desea incluir el módulo, elimine la regla de exclusión o edite la regla predeterminada:
+
+        # Remove a specific custom rule by Id
+        Remove-PackageUpdateRule -Id <RuleId>
+
+        # Or clear exclusions from the default rule
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking $null
+
+    Release Notes Are Not Available
+
+    Síntoma: Show-PackageUpdateReleaseNote no devuelve salida o un mensaje de que no se
+    encuentran notas de versión.
+
+    Causa: No todos los módulos en la Galería de PowerShell incluyen metadatos de notas de
+    versión. Algunos módulos más antiguos o mantenidos por la comunidad podrían no tener
+    esta información.
+
+    Solución: Este es un comportamiento esperado. Las notas de versión son metadatos opcionales
+    que los autores de módulos pueden elegir incluir. Verifique el repositorio o sitio web del
+    módulo directamente para obtener información de versión:
+
+        Get-PackageUpdateInfo | Select-Object Name, Repository, ReleaseNotes
+
+    Export/Import Files Are Not Found
+
+    Síntoma: Import-PackageUpdateInfo reporta que no existe archivo de exportación en caché, o
+    los archivos de exportación aparecen en ubicaciones inesperadas.
+
+    Causa: Los archivos de exportación se almacenan en directorios específicos de plataforma con
+    información de edición y versión. Si cambia entre ediciones de PowerShell (Desktop vs. Core)
+    o versiones de PowerShell, los archivos de exportación de otras configuraciones no se utilizan.
+
+    Solución: Verifique dónde se almacenan los archivos de exportación:
+
+        Get-PackageUpdateSetting | Select-Object -ExpandProperty UpdateCheckInterval
+
+    El nombre del archivo de exportación incluye edición y versión: PackageUpdateInfo_Desktop_5.xml
+    o PackageUpdateInfo_Core_7.xml. Para usar exportaciones en ediciones, exporte manualmente a
+    una ruta específica e importe desde esa ubicación:
+
+        Get-PackageUpdateInfo | Export-PackageUpdateInfo -Path "C:\Shared\Updates.xml"
+        Import-PackageUpdateInfo -Path "C:\Shared\Updates.xml"
+
+    Commands Return Errors About Configuration Files
+
+    Síntoma: Los errores mencionan una ruta de archivo de configuración faltante o no válida.
+
+    Causa: El archivo de configuración de ajustes del módulo podría estar corrupto, eliminado o
+    inaccesible. Esto ocurre a menudo si edita manualmente el archivo de configuración JSON con
+    sintaxis incorrecta.
+
+    Solución: Restablezca la configuración para restaurar los valores predeterminados:
+
+        Set-PackageUpdateSetting -Reset
+
+    Si editó manualmente el archivo de configuración, asegúrese de que el JSON sea válido. La
+    ubicación del archivo de configuración es:
+    - Windows: $HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_Desktop_5.json
+    - Linux: $HOME/.config/powershell/PackageUpdateSetting_Core_7.json
+
+    (Nota: Los números de edición y versión varían según su configuración de PowerShell.)

@@ -1,21 +1,25 @@
 ﻿Describe "Validating the module manifest" {
-    $moduleRoot = (Resolve-Path "$global:testroot\..").Path
+    $moduleRoot = (Resolve-Path "$global:testroot\..\PackageUpdateInfo").Path
     $manifest = ((Get-Content "$moduleRoot\PackageUpdateInfo.psd1") -join "`n") | Invoke-Expression
-    Context "Basic resources validation" {
-        $files = Get-ChildItem "$moduleRoot\functions" -Recurse -File | Where-Object Name -like "*.ps1"
-        It "Exports all functions in the public folder" -TestCases @{ files = $files; manifest = $manifest } {
 
-            $functions = (Compare-Object -ReferenceObject $files.BaseName -DifferenceObject $manifest.FunctionsToExport | Where-Object SideIndicator -Like '<=').InputObject
-            $functions | Should -BeNullOrEmpty
-        }
-        It "Exports no function that isn't also present in the public folder" -TestCases @{ files = $files; manifest = $manifest } {
-            $functions = (Compare-Object -ReferenceObject $files.BaseName -DifferenceObject $manifest.FunctionsToExport | Where-Object SideIndicator -Like '=>').InputObject
-            $functions | Should -BeNullOrEmpty
-        }
+    $config = Import-PowerShellDataFile -Path "$global:testroot\..\config.psd1"
+    if (-not $config.ExportFunctions) {
+        Context "Basic resources validation" {
+            $files = Get-ChildItem "$moduleRoot\functions" -Recurse -File | Where-Object Name -Like "*.ps1"
+            It "Exports all functions in the public folder" -TestCases @{ files = $files; manifest = $manifest } {
 
-        It "Exports none of its internal functions" -TestCases @{ moduleRoot = $moduleRoot; manifest = $manifest } {
-            $files = Get-ChildItem "$moduleRoot\internal\functions" -Recurse -File -Filter "*.ps1"
-            $files | Where-Object BaseName -In $manifest.FunctionsToExport | Should -BeNullOrEmpty
+                $functions = (Compare-Object -ReferenceObject $files.BaseName -DifferenceObject $manifest.FunctionsToExport | Where-Object SideIndicator -Like '<=').InputObject
+                $functions | Should -BeNullOrEmpty
+            }
+            It "Exports no function that isn't also present in the public folder" -TestCases @{ files = $files; manifest = $manifest } {
+                $functions = (Compare-Object -ReferenceObject $files.BaseName -DifferenceObject $manifest.FunctionsToExport | Where-Object SideIndicator -Like '=>').InputObject
+                $functions | Should -BeNullOrEmpty
+            }
+
+            It "Exports none of its internal functions" -TestCases @{ moduleRoot = $moduleRoot; manifest = $manifest } {
+                $files = Get-ChildItem "$moduleRoot\internal\functions" -Recurse -File -Filter "*.ps1"
+                $files | Where-Object BaseName -In $manifest.FunctionsToExport | Should -BeNullOrEmpty
+            }
         }
     }
 

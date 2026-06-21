@@ -1,30 +1,28 @@
 ﻿function Set-PackageUpdateRule {
     <#
     .SYNOPSIS
-        Set a rule for checking and reporting on installed modules
+        Updates an existing PackageUpdateInfo rule that controls how module version changes are reported.
 
     .DESCRIPTION
-        This command allows to edit existing rules on how a modules is handled in reporting.
-
-        For example, you can configure PackageUpdateINfo to suppress revision updates on a frequent
-        updated module, so that only build, minor or major updates are reportet as "update needed".
+        This cmdlet modifies an existing update rule stored in the PackageUpdateInfo configuration so that update checks can be narrowed or expanded for specific modules.
+        You can use it to include or exclude modules from update detection, control which version parts trigger an update report, and persist those rule changes back to the active settings file.
+        The command works with a rule identified by Id or with a rule object supplied through InputObject, and it can return the updated rule when -PassThru is specified.
 
     .PARAMETER Id
-        The Id as an identifier for the rule
+        The numeric identifier of the rule to modify.
 
     .PARAMETER InputObject
-        The rule object to modify
+        The rule object to update. This is useful when you already have a rule from Get-PackageUpdateRule and want to change it without referring to its Id.
 
     .PARAMETER ExcludeModuleFromChecking
-        ModuleNames to exclude from update checking
+        One or more module names that should be excluded from update checks for the rule being changed.
 
     .PARAMETER IncludeModuleForChecking
-        ModuleNames to include from update checking
-        By default all modules are included.
-
-        Default value is: "*"
+        One or more module names that should be included in update checks for the rule being changed. When omitted, the rule keeps the default behavior of evaluating all modules.
 
     .PARAMETER ReportChangeOnMajor
+        Controls whether a change in the major version part causes the rule to report that an update is needed.
+
         Report when major version changed for a module
 
         This means 'Get-PackageUpdateSetting' report update need,
@@ -35,6 +33,8 @@
         1      0      0     0
 
     .PARAMETER ReportChangeOnMinor
+        Controls whether a change in the minor version part causes the rule to report that an update is needed.
+
         Report when minor version changed for a module
 
         This means 'Get-PackageUpdateSetting' report update need,
@@ -45,43 +45,70 @@
         0      1      0     0
 
     .PARAMETER ReportChangeOnBuild
+        Controls whether a change in the build version part causes the rule to report that an update is needed.
+
         Report when build version changed for a module
 
         This means 'Get-PackageUpdateSetting' report update need,
-        when the build version version of a module change.
+        only when the build version version of a module change.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         0      0      1     0
 
     .PARAMETER ReportChangeOnRevision
+        Controls whether a change in the revision version part causes the rule to report that an update is needed.
+
         Report when revision part changed for a module
 
         This means 'Get-PackageUpdateSetting' report update need,
-        when the revision version version of a module change.
+        only when the revision version version of a module change.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
-        1      0      0     0
+        0      0      0      1
 
     .PARAMETER SettingObject
-        Settings object parsed in from command Get-PackageUpdateSetting
-        This is an optional parameter. By default it will use the default
-        settings object from the module.
+        The PackageUpdateInfo configuration object to update. When omitted, the cmdlet uses the current module settings from Get-PackageUpdateSetting.
 
     .PARAMETER PassThru
-        The rule object will be parsed to the pipeline for further processing
+        Returns the updated rule object to the pipeline after the change has been written to the settings file.
 
     .PARAMETER WhatIf
-        If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+        Shows what would happen if the command were to run without applying any changes.
 
     .PARAMETER Confirm
-        If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        Prompts for confirmation before the cmdlet writes changed rule data back to the settings file.
 
     .EXAMPLE
-        PS C:\> Add-PackageUpdateRule -IncludeModuleForChecking "MyModule" -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $false
+        PS C:\> Set-PackageUpdateRule -Id 3 -IncludeModuleForChecking 'MyModule' -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $false -PassThru
 
-        Add a new custom rule for "MyModule" to supress notifications on revision updates of the module
+        Updates rule 3 so that MyModule is evaluated explicitly and only major, minor, and build changes are reported as update needs.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateRule -Id 7 | Set-PackageUpdateRule -ExcludeModuleFromChecking 'AzureTools' -ReportChangeOnRevision $false
+
+        Takes the rule with Id 7 from the pipeline and suppresses revision-based update reporting for AzureTools while keeping the rule stored in the current settings.
+
+    .EXAMPLE
+        PS C:\> $rule = Get-PackageUpdateRule -Id 12
+        PS C:\> Set-PackageUpdateRule -InputObject $rule -IncludeModuleForChecking 'PowershellGet','PSReadLine' -ReportChangeOnMinor $false -ReportChangeOnBuild $false
+
+        Loads an existing rule object, expands the included modules, and updates the rule so that only major and revision changes are treated as actionable updates.
+
+    .EXAMPLE
+        PS C:\> Set-PackageUpdateRule -Id 5 -ReportChangeOnMajor $false -ReportChangeOnMinor $false -ReportChangeOnBuild $false -ReportChangeOnRevision $true -WhatIf
+
+        Shows the effect of changing rule 5 to report only revision-based updates without actually writing the change to disk.
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Rule
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/set-packageupdaterule/
 
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = "ById")]
@@ -126,17 +153,17 @@
         $PassThru
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         # If no setting object is piped in, get the current settings
         if (-not $SettingObject) { $SettingObject = Get-PackageUpdateSetting }
 
-        # Find the rule by Id
-        if ($id) { $InputObject = Get-PackageUpdateRule -Id $id }
+        # Find the rule by Id or take the piped in objectect to update
+        if ($id) { $InputObject = Get-PackageUpdateRule -Id $id -SettingObject $SettingObject }
 
-        # Work through all objects
+        # Work through all objects to update and set the new values
         foreach ($rule in $InputObject) {
             # Set the new preference values
             if ("ExcludeModuleFromChecking" -in $PSCmdlet.MyInvocation.BoundParameters.Keys) {
@@ -177,6 +204,6 @@
         }
     }
 
-    end {
-    }
+    end {}
+
 }

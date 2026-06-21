@@ -1,22 +1,41 @@
 ﻿function Get-PackageUpdateSetting {
     <#
     .SYNOPSIS
-        Set behaviour settings for PackageUpdateInfo module
+        Retrieves the PackageUpdateInfo configuration from the module settings file.
 
     .DESCRIPTION
-        Query the basic settings for check and report on up-to-dateness information on installed modules
+        Reads the PackageUpdateInfo configuration file and returns the current module behavior settings as a PackageUpdate.Configuration object. The returned object includes the default and custom update rules, the update check interval, and the timestamps of the last and last successful checks.
 
     .PARAMETER Path
-        The filepath where to setting file
+        The full path to the settings file to read.
 
-        This is optional, default path value is:
-        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
-        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
+        This parameter is optional. If it is omitted, the function uses the default module settings path:
+        Linux:   "$HOME/.config/powershell/PackageUpdateInfo/PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateInfo_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
 
     .EXAMPLE
         PS C:\> Get-PackageUpdateSetting
 
-        Get the current settings on PackageUpdateInfo behaviour.
+        Retrieves the current PackageUpdateInfo settings from the default configuration file.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateSetting -Path "C:\temp\PackageUpdateInfo.json"
+
+        Reads the PackageUpdateInfo configuration from a specific settings file.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateSetting | Select-Object -ExpandProperty UpdateCheckInterval
+
+        Returns the configured update check interval from the current settings.
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Setting
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/get-packageupdatesetting/
 
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
@@ -29,10 +48,10 @@
         $Path = $script:ModuleSettingPath
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         # read settings file
         try {
             $configuration = Get-Content -Path $Path -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
@@ -86,8 +105,9 @@
         $output.Path = $configuration.Path
 
         $output
+
     }
 
-    end {
-    }
+    end {}
+
 }

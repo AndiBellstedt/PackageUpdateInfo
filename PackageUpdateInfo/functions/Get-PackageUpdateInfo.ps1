@@ -1,39 +1,46 @@
 ﻿function Get-PackageUpdateInfo {
     <#
     .SYNOPSIS
-        Get info about up-to-dateness for installed modules
+        Retrieve update information for installed PowerShell modules and identify modules that have newer versions available online.
 
     .DESCRIPTION
-        Get-PackageUpdateInfo query locally installed modules and compare them against the online versions for up-to-dateness
+        Get-PackageUpdateInfo inspects locally installed PowerShell modules,
+        compares their installed versions with the versions available in one or more configured repositories,
+        and returns detailed update information.
+        The command can filter the results to modules that need updates, restrict the search to current-user or all-users module paths,
+        and optionally display Windows toast notifications when updates are available.
+        It also honors the module's update-check rules and the configured update-check interval unless you explicitly force a fresh check.
 
     .PARAMETER Name
-        The name of the module to check
+        One or more module names to inspect. When this parameter is omitted, the function uses the configured include rules to determine which modules should be checked.
 
     .PARAMETER Repository
-        The repository to check
+        One or more PowerShell repositories to query for available module versions. If omitted, the command uses the repositories available on the local system.
 
     .PARAMETER ShowOnlyNeededUpdate
-        This switch suppresses up-to-date modules from the output.
+        Suppresses modules that are already up to date from the output and returns only modules where an update is available.
 
     .PARAMETER ShowToastNotification
-        This switch invokes nice Windows-Toast-Notifications with release note information on modules with update needed.
+        Displays Windows toast notifications for modules that have updates available when the system supports this feature.
 
     .PARAMETER CurrentUser
-        Only look for modules in the current user profile.
-        This is helpfully if you're running without admin right, which you should always do as your default work preference.
+        Restricts the search to modules installed in the current user profile location.
+
+        This is helpful if you're running without admin rights, which you should always do as your default work preference.
 
     .PARAMETER AllUsers
-        Only look for modules in the AllUsers/system directories.
+        Restricts the search to modules installed in shared all-users or system module locations.
+
         Keep in mind, that admin rights are required to update those modules.
 
     .PARAMETER Force
-        Force to query info about up-to-dateness for installed modules, even if the UpdateCheckInterval
-        from last check is not expired.
+        Bypasses the configured update-check interval and performs a fresh comparison immediately.
 
     .EXAMPLE
         PS C:\> Get-PackageUpdateInfo
 
-        Outputs update information for all modules (currentUser and AllUsers).
+        Retrieves update information for all modules that are discovered from the configured include rules and available repositories.
+        The output shows the installed version, the latest online version, and whether an update is needed.
         Output can look like:
 
         Name       Repository VersionInstalled VersionOnline NeedUpdate Path
@@ -44,6 +51,7 @@
     .EXAMPLE
         PS C:\> Get-PackageUpdateInfo -ShowOnlyNeededUpdate
 
+        Returns only those modules where a newer version is available online, making it easier to focus on modules that actually need attention.
         This will filter output to show only modules where NeedUpdate is True
         Output can look like:
 
@@ -54,10 +62,21 @@
     .EXAMPLE
         PS C:\> "Pester", "PSReadline" | Get-PackageUpdateInfo
 
-        Pipeline is supported. This returns the infos only for the two modules "Pester", "PSReadline"
+        Accepts module names from the pipeline and returns update information for each requested module. This also works with objects that expose a Name property, such as modules returned by Get-Module.
 
-        This also can be done with Get-Module cmdlet:
-        Get-Module "Pester", "PSReadline" | Get-PackageUpdateInfo
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateInfo -CurrentUser -ShowOnlyNeededUpdate
+
+        Checks only modules installed in the current user profile and displays only those modules that have a newer version available online.
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/get-packageupdateinfo/
 
     #>
     [CmdletBinding( DefaultParameterSetName = 'DefaultSet1',
@@ -94,6 +113,7 @@
     )
 
     begin {
+
         if ($ShowToastNotification -and (-not $script:EnableToastNotification)) {
             Write-Verbose -Message "System is not able to do Toast Notifications" -Verbose
         }
@@ -125,9 +145,11 @@
         }
         if ($Repository) { $paramsGetPSRepository.Add("Name", $Repository) }
         $psRepositories = Get-PSRepository @paramsGetPSRepository
+
     }
 
     process {
+
         if (-not $Name) {
             # If name not specified, check the specified rules to get modules to include
             if ($updateCheckingRules.IncludeModuleForChecking -match "^\*$") {
@@ -242,9 +264,13 @@
                 $packageUpdateInfo
             }
         }
+
     }
 
     end {
+
         Set-PackageUpdateSetting -LastSuccessfulCheck (Get-Date)
+
     }
+
 }
