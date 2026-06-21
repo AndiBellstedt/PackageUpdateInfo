@@ -35,22 +35,64 @@ Describe 'Get-PackageUpdateInfo - Functionality' {
     BeforeEach {
         $script:settingsPath = Join-Path $TestDrive 'PackageUpdateSetting.json'
         $null = Set-PackageUpdateSetting -Reset -Path $script:settingsPath -PassThru | Out-Null
+
         InModuleScope PackageUpdateInfo -ScriptBlock {
             param($path)
             $script:ModuleSettingPath = $path
         } -ArgumentList $script:settingsPath
 
         Mock -ModuleName PackageUpdateInfo Get-PSRepository {
-            [pscustomobject]@{ Name = 'PSGallery'; SourceLocation = 'https://www.powershellgallery.com/api/v2' }
+            [pscustomobject]@{
+                Name           = 'PSGallery'
+                SourceLocation = 'https://www.powershellgallery.com/api/v2'
+            }
         }
+
         Mock -ModuleName PackageUpdateInfo Get-Module {
-            [pscustomobject]@{ Name = 'Pester'; Version = [version]'4.10.0'; RepositorySourceLocation = 'https://www.powershellgallery.com/api/v2'; ModuleBase = 'C:\Modules\Pester\4.10.0' }
+            [pscustomobject]@{
+                Name                     = 'Pester'
+                Version                  = [version]'4.10.0'
+                RepositorySourceLocation = 'https://www.powershellgallery.com/api/v2'
+                ModuleBase               = 'C:\Modules\Pester\4.10.0'
+            }
         }
+
         Mock -ModuleName PackageUpdateInfo Find-Module {
-            [pscustomobject]@{ Name = 'Pester'; Version = [version]'4.11.0'; ProjectUri = 'https://example.test'; IconUri = 'https://example.test/icon'; ReleaseNotes = 'https://example.test/release'; Author = 'Test Author'; PublishedDate = '2024-01-01'; Description = 'Test description' }
+            [pscustomobject]@{
+                Name          = 'Pester'
+                Version       = [version]'4.11.0'
+                ProjectUri    = 'https://example.test'
+                IconUri       = 'https://example.test/icon'
+                ReleaseNotes  = 'https://example.test/release'
+                Author        = 'Test Author'
+                PublishedDate = '2024-01-01'
+                Description   = 'Test description'
+            }
         }
+
+        Mock -ModuleName PackageUpdateInfo Find-PSResource {
+            [pscustomobject]@{
+                Name          = 'Pester'
+                Version       = [version]'4.11.0'
+                ProjectUri    = 'https://example.test'
+                IconUri       = 'https://example.test/icon'
+                ReleaseNotes  = 'https://example.test/release'
+                Author        = 'Test Author'
+                PublishedDate = '2024-01-01'
+                Description   = 'Test description'
+            }
+        }
+
         Mock -ModuleName PackageUpdateInfo Get-PackageUpdateRule {
-            [pscustomobject]@{ Id = 1; ExcludeModuleFromChecking = @(''); IncludeModuleForChecking = @('*'); ReportChangeOnMajor = $true; ReportChangeOnMinor = $true; ReportChangeOnBuild = $true; ReportChangeOnRevision = $true }
+            [pscustomobject]@{
+                Id                        = 1
+                ExcludeModuleFromChecking = @('')
+                IncludeModuleForChecking  = @('*')
+                ReportChangeOnMajor       = $true
+                ReportChangeOnMinor       = $true
+                ReportChangeOnBuild       = $true
+                ReportChangeOnRevision    = $true
+            }
         }
     }
 
