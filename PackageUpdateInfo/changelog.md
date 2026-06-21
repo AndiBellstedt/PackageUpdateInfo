@@ -2,9 +2,17 @@
 
 ## 1.2.6.0
 
+### Added
+- Add german (de-DE) localization for about_PackageUpdateInfo.help file.
+- Add spanish (es-ES) localization for about_PackageUpdateInfo.help file.
+- Add french (fr-FR) localization for about_PackageUpdateInfo.help file.
+- Add polish (pl-PL) localization for about_PackageUpdateInfo.help file.
+
 ### Changed
 - **Fix** Removed unintended dependency to PSFramework module in the PackageUpdateInfo.psm1 file. This was a leftover from refactoring a while ago. This module is explicitly intended to run without PSFramework. (even I very appreciate PSFramework and use it in many of my projects)
-
+- Some code refactoring in the functions of the module (no functional changes, just code style and readability improvements)
+- Refactoring of the comment-based help in the functions of the module (no functional changes, just code style and readability improvements)
+- Refactoring about_PackageUpdateInfo.help file with more userfriendly guidance and information about the module and the usage
 
 
 ## 1.2.5.0
