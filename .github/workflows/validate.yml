@@ -26,7 +26,7 @@ jobs:
       - name: Validate (PowerShell 5.1)
         shell: powershell
         env:
-          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
         run: |
           $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
@@ -49,7 +49,7 @@ jobs:
       - name: Validate (PowerShell 7)
         shell: pwsh
         env:
-          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
         run: |
           $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
@@ -72,7 +72,7 @@ jobs:
       - name: Validate (PowerShell 7)
         shell: pwsh
         env:
-          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
         run: |
           $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
@@ -95,7 +95,7 @@ jobs:
       - name: Validate (PowerShell 7)
         shell: pwsh
         env:
-          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
         run: |
           $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
