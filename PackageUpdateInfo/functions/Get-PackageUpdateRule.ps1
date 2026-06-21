@@ -1,40 +1,51 @@
 ﻿function Get-PackageUpdateRule {
     <#
     .SYNOPSIS
-        Get rule(s) for checking and reporting on installed modules
+        Retrieve one or more package update rules used to control module update checks and reporting.
 
     .DESCRIPTION
-        This command get the existing custom rule(s) how modules are handled in reporting.
+        Retrieves the custom rules that define how modules are handled during update checks and reporting.
+        You can filter rules by identifier, by module inclusion or exclusion patterns, or include the default rule
+        from the active settings object to compare custom behavior with the built-in fallback behavior.
 
     .PARAMETER Id
-        The Id as an identifier for the rule
+        Specifies one or more rule identifiers to retrieve.
 
     .PARAMETER ExcludeModuleFromChecking
-        ModuleNames to exclude from update checking
+        Filters the returned rules to those that exclude the specified module name from update checking.
 
     .PARAMETER IncludeModuleForChecking
-        ModuleNames to include from update checking
-        By default all modules are included.
+        Filters the returned rules to those that include the specified module name for update checking.
+        By default, all modules are included when no filter is supplied.
 
         Default value is: "*"
 
     .PARAMETER IncludeDefaultRule
-        Outputs the DefaultRule from the setting object, in addition to the custom rules
+        Adds the default rule from the supplied or active settings object to the output in addition to any custom rules.
 
     .PARAMETER SettingObject
-        Settings object parsed in from command Get-PackageUpdateSetting
-        This is an optional parameter. By default it will use the default
-        settings object from the module.
+        Specifies a settings object returned by Get-PackageUpdateSetting.
+        If this parameter is omitted, the command uses the current module settings object.
 
     .EXAMPLE
         PS C:\> Get-PackageUpdateRule
 
-        Get all the existing custom rules
+        Retrieve all custom rules currently configured for package update handling.
 
     .EXAMPLE
-        PS C:\> Get-PackageUpdateRule -Id 1
+        PS C:\> Get-PackageUpdateRule -Id 1, 2
 
-        Get all the custom rule with Id 1
+        Retrieve the custom rules that have the specified identifiers.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateRule -ExcludeModuleFromChecking 'Pester'
+
+        Retrieve the custom rules that exclude Pester from update checking.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateRule -IncludeModuleForChecking 'PackageManagement' -IncludeDefaultRule
+
+        Retrieve the custom rules that include PackageManagement for update checking and also return the default rule.
 
     .NOTES
         Version  : 1.1.0.0
@@ -74,10 +85,10 @@
         $SettingObject
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         # If no setting object is piped in, get the current settings
         if (-not $SettingObject) { $SettingObject = Get-PackageUpdateSetting }
 
@@ -100,8 +111,9 @@
         }
 
         $output
+
     }
 
-    end {
-    }
+    end {}
+
 }

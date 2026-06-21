@@ -1,90 +1,97 @@
 ﻿function Add-PackageUpdateRule {
     <#
     .SYNOPSIS
-        Add rule for checking and reporting on installed modules
+        Adds a custom rule that controls how module updates are reported.
 
     .DESCRIPTION
-        This command allows to declare how a modules is handled in reporting for special.
-
-        For example, you can configure PackageUpdateINfo to suppress revision updates on a frequent
-        updated module, so that only build, minor or major updates are reportet as "update needed".
+        This command creates a custom update rule for the current PackageUpdateInfo configuration.
+        Each rule defines when an update should be considered relevant for reporting based on changes in the major, minor, build, or revision portion of a module version.
+        Rules can also scope reporting to specific modules by including or excluding module names, which makes it possible to suppress noisy revision-only updates or focus checks on selected modules.
+        If no settings object is provided, the command uses the current module configuration and stores the new rule there.
 
     .PARAMETER Id
-        The Id as an identifier for the rule
+        The unique identifier for the rule.
 
     .PARAMETER ExcludeModuleFromChecking
-        ModuleNames to exclude from update checking
+        One or more module names that should be excluded from update checking by this rule.
 
     .PARAMETER IncludeModuleForChecking
-        ModuleNames to include from update checking
-        By default all modules are included.
-
-        Default value is: "*"
+        One or more module names that should be included in update checking by this rule.
+        If omitted, the rule applies to all modules.
 
     .PARAMETER ReportChangeOnMajor
-        Report when major version changed for a module
+        Indicates whether a change in the major version part should trigger an update report.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        only when the major version version of a module change.
+        This means 'Get-PackageUpdateSetting' will report an update only when the major version of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         1      0      0     0
 
     .PARAMETER ReportChangeOnMinor
-        Report when minor version changed for a module
+        Indicates whether a change in the minor version part should trigger an update report.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        only when the minor version version of a module change.
+        This means 'Get-PackageUpdateSetting' will report an update only when the minor version of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         0      1      0     0
 
     .PARAMETER ReportChangeOnBuild
-        Report when build version changed for a module
+        Indicates whether a change in the build version part should trigger an update report.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        when the build version version of a module change.
-
+        This means 'Get-PackageUpdateSetting' will report an update only when the build version of a module changes.
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         0      0      1     0
 
     .PARAMETER ReportChangeOnRevision
-        Report when revision part changed for a module
+        Indicates whether a change in the revision version part should trigger an update report.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        when the revision version version of a module change.
+        This means 'Get-PackageUpdateSetting' report update need, when the revision version of a module change.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         1      0      0     0
 
     .PARAMETER SettingObject
-        Settings object parsed in from command Get-PackageUpdateSetting
-        This is an optional parameter. By default it will use the default
-        settings object from the module.
+        A settings object from Get-PackageUpdateSetting that should receive the new rule.
+        If omitted, the current module settings are used.
 
     .PARAMETER PassThru
-        The rule object will be parsed to the pipeline for further processing
+        Returns the created rule object from the pipeline.
 
     .PARAMETER WhatIf
-        If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+        Displays what would happen if the command were to run without changing any configuration.
 
     .PARAMETER Confirm
-        If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        Prompts for confirmation before saving the new rule.
 
     .EXAMPLE
         PS C:\> Add-PackageUpdateRule -IncludeModuleForChecking "MyModule" -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $false
 
-        Add a new custom rule for "MyModule" to supress notifications on revision updates of the module
+        Adds a rule that reports major, minor, and build updates for MyModule while suppressing revision-only changes.
+
+    .EXAMPLE
+        PS C:\> Add-PackageUpdateRule -ExcludeModuleFromChecking "PowerShellGet","PSScriptAnalyzer" -ReportChangeOnRevision $false
+
+        Adds a rule that excludes two modules from update checking and suppresses revision updates for the remaining modules.
+
+    .EXAMPLE
+        PS C:\> Add-PackageUpdateRule -Id 99 -IncludeModuleForChecking "MyModule" -PassThru
+
+        Adds a rule with a specific identifier and returns the created rule object.
+
+    .EXAMPLE
+        PS C:\> $settings = Get-PackageUpdateSetting; Add-PackageUpdateRule -SettingObject $settings -ExcludeModuleFromChecking "MyModule"
+
+        Adds a rule to an existing settings object without using the default module configuration.
 
     .NOTES
-        Version  : 1.1.0.0
-        Author   : Andi Bellstedt
-        Date     : 2026-06-21
-        Keywords : PackageUpdateInfo, Update, Module, Rule
+        Version   : 1.1.0.0
+        Author    : Andi Bellstedt
+        Date      : 2026-06-21
+        Keywords  : PackageUpdateInfo, Update, Module, Rule
 
     .LINK
         https://packageupdateinfo.andibellstedt.com/docs/commands/add-packageupdaterule/
@@ -127,17 +134,19 @@
         $PassThru
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         # If no setting object is piped in, get the current settings
         if (-not $SettingObject) { $SettingObject = Get-PackageUpdateSetting }
+
         if ($Id) {
             if ($Id -in $SettingObject.CustomRule.Id) {
                 Write-Error -Message "Unable to add rule with Id $($Id), because a rule with this Id already exist." -ErrorAction Stop
             }
         }
+
         if ($ExcludeModuleFromChecking) {
             foreach ($item in $SettingObject.CustomRule) {
                 foreach ($toExclude in $ExcludeModuleFromChecking) {
@@ -147,6 +156,7 @@
                 }
             }
         }
+
         if ($IncludeModuleForChecking) {
             foreach ($item in $SettingObject.CustomRule) {
                 foreach ($toInclude in $IncludeModuleForChecking) {
@@ -180,10 +190,13 @@
 
         if ("ReportChangeOnMajor" -in $PSCmdlet.MyInvocation.BoundParameters.Keys) { Write-Verbose "Setting ReportChangeOnMajor: $($ReportChangeOnMajor)" }
         $rule.ReportChangeOnMajor = $ReportChangeOnMajor
+
         if ("ReportChangeOnMinor" -in $PSCmdlet.MyInvocation.BoundParameters.Keys) { Write-Verbose "Setting ReportChangeOnMinor: $($ReportChangeOnMinor)" }
         $rule.ReportChangeOnMinor = $ReportChangeOnMinor
+
         if ("ReportChangeOnBuild" -in $PSCmdlet.MyInvocation.BoundParameters.Keys) { Write-Verbose "Setting ReportChangeOnBuild: $($ReportChangeOnBuild)" }
         $rule.ReportChangeOnBuild = $ReportChangeOnBuild
+
         if ("ReportChangeOnRevision" -in $PSCmdlet.MyInvocation.BoundParameters.Keys) { Write-Verbose "Setting ReportChangeOnRevision: $($ReportChangeOnRevision)" }
         $rule.ReportChangeOnRevision = $ReportChangeOnRevision
 
@@ -196,8 +209,8 @@
         if ($PassThru) {
             [PackageUpdate.ModuleRule]$rule
         }
+
     }
 
-    end {
-    }
+    end {}
 }
