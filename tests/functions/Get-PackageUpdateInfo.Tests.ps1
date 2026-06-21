@@ -70,16 +70,18 @@ Describe 'Get-PackageUpdateInfo - Functionality' {
             }
         }
 
-        Mock -ModuleName PackageUpdateInfo Find-PSResource {
-            [pscustomobject]@{
-                Name          = 'Pester'
-                Version       = [version]'4.11.0'
-                ProjectUri    = 'https://example.test'
-                IconUri       = 'https://example.test/icon'
-                ReleaseNotes  = 'https://example.test/release'
-                Author        = 'Test Author'
-                PublishedDate = '2024-01-01'
-                Description   = 'Test description'
+        if (Get-Command -Name Find-PSResource -ErrorAction SilentlyContinue) {
+            Mock -ModuleName PackageUpdateInfo Find-PSResource {
+                [pscustomobject]@{
+                    Name          = 'Pester'
+                    Version       = [version]'4.11.0'
+                    ProjectUri    = 'https://example.test'
+                    IconUri       = 'https://example.test/icon'
+                    ReleaseNotes  = 'https://example.test/release'
+                    Author        = 'Test Author'
+                    PublishedDate = '2024-01-01'
+                    Description   = 'Test description'
+                }
             }
         }
 
