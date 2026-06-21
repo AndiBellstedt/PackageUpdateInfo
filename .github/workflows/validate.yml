@@ -9,10 +9,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: validate-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   validate-windows-ps51:
     name: Pester testing on Windows with PowerShell 5.1
@@ -29,8 +25,10 @@ jobs:
 
       - name: Validate (PowerShell 5.1)
         shell: powershell
+        env:
+          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
         run: |
-          $outputmode = "${{ env.OUTPUT_MODE }}"
+          $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
           Write-Host "Invoking Pester tests using output mode: $outputmode"
           & .\tests\pester.ps1 -Output $outputmode
@@ -50,8 +48,10 @@ jobs:
 
       - name: Validate (PowerShell 7)
         shell: pwsh
+        env:
+          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
         run: |
-          $outputmode = "${{ env.OUTPUT_MODE }}"
+          $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
           Write-Host "Invoking Pester tests using output mode: $outputmode"
           & .\tests\pester.ps1 -Output $outputmode
@@ -71,8 +71,10 @@ jobs:
 
       - name: Validate (PowerShell 7)
         shell: pwsh
+        env:
+          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
         run: |
-          $outputmode = "${{ env.OUTPUT_MODE }}"
+          $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
           Write-Host "Invoking Pester tests using output mode: $outputmode"
           & .\tests\pester.ps1 -Output $outputmode
@@ -92,8 +94,10 @@ jobs:
 
       - name: Validate (PowerShell 7)
         shell: pwsh
+        env:
+          OUTPUT_MODE: "${{ env.OUTPUT_MODE }}"
         run: |
-          $outputmode = "${{ env.OUTPUT_MODE }}"
+          $outputmode = "$($env:OUTPUT_MODE)"
           if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
           Write-Host "Invoking Pester tests using output mode: $outputmode"
           & ./tests/pester.ps1 -Output $outputmode
