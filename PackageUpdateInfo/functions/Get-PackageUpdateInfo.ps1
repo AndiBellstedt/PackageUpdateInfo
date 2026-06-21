@@ -4,12 +4,16 @@
         Retrieve update information for installed PowerShell modules and identify modules that have newer versions available online.
 
     .DESCRIPTION
-        Get-PackageUpdateInfo inspects locally installed PowerShell modules,
-        compares their installed versions with the versions available in one or more configured repositories,
-        and returns detailed update information.
-        The command can filter the results to modules that need updates, restrict the search to current-user or all-users module paths,
-        and optionally display Windows toast notifications when updates are available.
-        It also honors the module's update-check rules and the configured update-check interval unless you explicitly force a fresh check.
+        Get-PackageUpdateInfo inspects locally installed PowerShell modules, compares their installed versions
+        with the versions available in one or more configured repositories, and returns detailed update information.
+
+        The command can filter the results to modules that need updates, restrict the search to current-user or
+        all-users module paths, and optionally display Windows toast notifications when updates are available.
+
+        It also honors the module's update-check rules and the configured update-check interval unless you explicitly
+        force a fresh check.
+
+        The checking is done via PowerShellGet v2 or v3, depending on the availability of the Microsoft.PowerShell.PSResourceGet module in the system.
 
     .PARAMETER Name
         One or more module names to inspect. When this parameter is omitted, the function uses the configured include rules to determine which modules should be checked.
@@ -70,7 +74,7 @@
         Checks only modules installed in the current user profile and displays only those modules that have a newer version available online.
 
     .NOTES
-        Version  : 1.1.0.0
+        Version  : 1.2.0.0
         Author   : Andi Bellstedt
         Date     : 2026-06-21
         Keywords : PackageUpdateInfo, Update, Module
@@ -180,7 +184,7 @@
             Write-Verbose "Found local module(s): $($modulesLocal.count)"
 
             # Filtering out if switches are specified
-            Write-Verbose "Do the filtering..."
+            Write-Verbose "Filtering local module(s) based on specified parameters: CurrentUser=$($CurrentUser), AllUsers=$($AllUsers), Repository=$($Repository)"
             if ($CurrentUser) {
                 $modulesLocal = foreach ($path in $CurrentUserModulePath) { $modulesLocal | Where-Object path -Like "$($path)*" }
             }
@@ -207,18 +211,24 @@
             Write-Verbose "Local module(s) to check after filtering: $($modulesLocal.count)"
 
             # Get available modules from online repositories
-            Write-Verbose "Get available modules from online repositories"
-            $modulesOnline = foreach ($moduleLocalName in $modulesLocal.Name) {
-                $paramsFindModule = @{
-                    "Name"    = $moduleLocalName
-                    "Verbose" = $false
+            Write-Verbose "Checking available modules from online repositories (using PowerShellGet v$(if($true -eq $script:UsePSResourceGet) { '3' } else { '2' }))"
+            $paramsFindModule = @{
+                "Verbose" = $false
+            }
+            if ($Repository) { $paramsFindModule["Repository"] = $Repository }
+
+            $modulesOnline = if ($true -eq $script:UsePSResourceGet) {
+                $paramsFindModule["Name"] = $modulesLocal.Name
+                Find-PSResource @paramsFindModule
+            } else {
+                foreach ($moduleLocalName in $modulesLocal.Name) {
+                    $paramsFindModule["Name"] = $moduleLocalName
+                    Find-Module @paramsFindModule
                 }
-                if ($Repository) { $paramsFindModule["Repository"] = $Repository }
-                Find-Module @paramsFindModule
             }
 
             # Compare the version and create output
-            Write-Verbose "Compare the version and create output"
+            Write-Verbose "Comparing versions and creating output"
             foreach ($moduleOnline in $modulesOnline) {
                 $moduleLocal = $modulesLocal | Where-Object Name -like $moduleOnline.Name
 
