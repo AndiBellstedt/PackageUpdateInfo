@@ -2,7 +2,7 @@
 
 This document describes how to report security vulnerabilities for **PackageUpdateInfo** and what to expect from the maintainers.
 
-PackageUpdateInfo is a PowerShell module helps you staying up to date with you installed modules. It checks all your local installed powershell modules and output a table with module names and version information.
+PackageUpdateInfo is a PowerShell module that helps you stay up to date with your installed PowerShell modules. It queries the PowerShell Gallery to check available versions and can automate notifications when updates are available.
 
 ---
 
@@ -36,17 +36,17 @@ To help triage quickly, include:
 - Affected versions (e.g., `1.0.0`)
 - Your environment:
   - PowerShell version (Windows PowerShell 5.1 / PowerShell 7+)
-  - OS and version (e.g., Windows Server 2022)
-  - DNS Server version (if relevant)
+  - OS and version (e.g., Windows 11, Windows Server 2022)
+  - Module installation scope (CurrentUser or AllUsers)
 - Any relevant logs **with secrets removed**
 - Suggested remediation (optional)
 
 ### Sensitive Data Handling
 Do **not** include any of the following in reports or logs:
 
-- API keys, tokens, or credentials
-- DNS query data containing sensitive internal information
-- Client IP addresses or internal network topology details
+- API keys, tokens, or credentials (PowerShell Gallery API keys, etc.)
+- Credentials used for module authentication
+- Module metadata that may reveal internal systems or network topology
 - Any personal data you are not authorized to share
 
 ---
@@ -79,14 +79,16 @@ Severity is determined by maintainers considering:
 ### In Scope
 - The **PackageUpdateInfo** PowerShell module code in this repository
 - Module installation script(s) shipped with the repo (e.g., `install.ps1`)
-- CI/CD definitions and build scripts included in this repository (e.g., Azure Pipelines configuration)
-- Localization resources and type/format definition files shipped with the module
+- CI/CD definitions and build scripts included in this repository (e.g., GitHub Actions workflows)
+- Type and format definition files shipped with the module
+- Localization resources
+- Module manifest and module configuration
 
 ### Out of Scope (Examples)
-- Vulnerabilities in **Windows DNS Server** itself
 - Vulnerabilities in **PowerShell** / the runtime
-- Issues in third-party analysis tools or databases where parsed data is imported
-- Issues in third-party services (e.g., GitHub) unless caused by PackageUpdateInfo’s implementation
+- Vulnerabilities in the **PowerShell Gallery** service
+- Vulnerabilities in **BurntToast** or other optional dependencies
+- Issues in third-party services unless caused by PackageUpdateInfo's implementation
 - Social engineering, phishing, or physical attacks
 
 If a report is out of scope but relevant, we may still suggest mitigations or upstream reporting paths.
@@ -95,61 +97,64 @@ If a report is out of scope but relevant, we may still suggest mitigations or up
 
 ## Project-Specific Security Considerations
 
-PackageUpdateInfo performs file operations on DNS Server debug logs, which may contain sensitive network information. The following are security-sensitive areas:
+PackageUpdateInfo interacts with the PowerShell Gallery to retrieve module metadata and version information. The following are security-sensitive areas:
 
-### DNS Query Data Privacy
-- DNS debug logs contain potentially sensitive information including:
-  - Internal domain names and network topology
-  - Client IP addresses (may be considered PII in some jurisdictions)
-  - Query patterns that reveal user behavior
-  - Failed queries that may expose internal applications or services
-- When sharing parsed CSV output or statistics, ensure you have authorization to share this data.
-- Consider data retention and privacy regulations (GDPR, CCPA, etc.) when storing parsed DNS data.
-- Report any scenario where the module inadvertently exposes or logs sensitive query data beyond what's in the source log file.
+### PowerShell Gallery API Communication
+- The module queries the PowerShell Gallery API for module information over HTTPS.
+- Ensure your system has current root certificates and TLS support (TLS 1.2 minimum).
+- The module only reads public metadata; no credentials are required for basic queries.
+- Report any scenario where the module fails to verify SSL/TLS certificates or makes insecure connections.
 
-### Log File Access and Permissions
-- DNS Server debug logs typically require administrative privileges to access.
-- Ensure proper file system permissions are maintained on:
-  - Input DNS debug log files (typically in `C:\Windows\System32\dns\` on default installations)
-  - Output CSV files containing parsed query data
-  - Temporary files during processing
-  - Compressed archives when using `-CompressOutput`
-- Do not process DNS logs from untrusted sources or network shares without proper validation.
-- When using `-RemoveSourceFile`, ensure you have proper authorization and backups, as this permanently deletes source files.
+### Data Handling and Privacy
+- Module metadata retrieved from the PowerShell Gallery is public information.
+- Export data (`Export-PackageUpdateInfo`) contains module names and versions from your system.
+- When sharing exported data, be aware it may reveal:
+  - Which modules you have installed (potentially revealing internal tooling)
+  - Module versions you use (may indicate your infrastructure age/patterns)
+- Do not share exported module data in untrusted channels or with unauthorized parties.
+- Ensure proper file permissions on exported data files to prevent unauthorized access.
 
-### Path Handling and Traversal
-- Input file paths and output file paths can be user-controlled or come from external sources.
-- The module should validate paths to prevent:
-  - Path traversal attacks (e.g., `../../Windows/System32`)
-  - Writing to protected system locations
-  - Overwriting critical files
-- Report any scenario where path validation can be bypassed or where the module writes to unintended locations.
+### Update Rules and Settings Storage
+- `Set-PackageUpdateSetting` and `Add-PackageUpdateRule` store configuration locally.
+- These configurations are stored in standard PowerShell data locations:
+  - For CurrentUser scope: `$env:APPDATA\`
+  - For AllUsers scope: System-protected directories (requires administrative rights)
+- Ensure proper file system permissions are maintained on configuration files.
+- Report any scenario where configuration data is written to unexpected locations or with improper permissions.
 
-### DNS Log Injection and Malformed Data
-- DNS debug logs may contain malformed entries, either due to DNS attacks or corrupted log files.
+### Optional BurntToast Notifications
+- When using the `-ShowToastNotification` parameter with BurntToast, notification content is displayed via Windows notifications.
+- Notification content includes module names and update information (public data).
+- BurntToast is an optional dependency; the core module functions without it.
+- Report any issues where notification functionality exposes sensitive information.
+
+### Credential and Authentication Handling
+- PackageUpdateInfo does not store or manage credentials directly.
+- If used in an authenticated context (e.g., private PowerShell Feeds), credential handling is delegated to PowerShell's built-in mechanisms.
+- Use PowerShell credential providers and secrets management tools (e.g., Windows Credential Manager, Azure Key Vault) for managing sensitive access tokens.
+- Report any scenario where the module inadvertently logs or exposes credentials.
+
+### Malformed Module Metadata
+- The PowerShell Gallery may contain malformed or unexpected module metadata.
 - The module should safely handle:
-  - Unexpected characters in domain names
-  - Extremely long query names (potential buffer issues)
-  - Malicious characters that could affect CSV parsing (delimiters, quotes, newlines)
-  - Invalid IP addresses or malformed protocol fields
-- Report any scenario where malformed DNS log entries cause crashes, data corruption, or unexpected behavior.
+  - Invalid version strings
+  - Unexpected characters in module names or descriptions
+  - Missing or null metadata fields
+  - Extremely large response payloads
+- Report any scenario where malformed metadata causes crashes, data corruption, or unexpected behavior.
 
-### Resource Exhaustion and DoS
-- Very large DNS debug log files (multi-gigabyte) could cause:
-  - Excessive memory consumption
-  - CPU exhaustion during parsing
-  - Disk space exhaustion from CSV output (typically 2-3x larger than input)
-  - Temporary file accumulation
-- The module implements streaming I/O to minimize memory footprint, but report any resource exhaustion issues.
-- When using automation, ensure adequate disk space monitoring to prevent disk full conditions.
+### Resource Consumption
+- When checking many installed modules, the module makes multiple API calls to the PowerShell Gallery.
+- Network connectivity issues, API throttling, or large result sets could affect performance.
+- Report any resource exhaustion issues or unexpected network behavior.
 
 ### Logging and Diagnostics
-- PackageUpdateInfo uses verbose output for operational details.
-- Diagnostic output should never include:
-  - Sensitive DNS query data beyond what's expected in normal operation
-  - File system paths that reveal internal infrastructure
-  - Temporary file contents or intermediate parsing data
-- Report any scenario where verbose or error output exposes sensitive information beyond the scope of the input log file.
+- Verbose output should contain only operational details relevant to troubleshooting.
+- Output should not include:
+  - Sensitive credentials or tokens
+  - Internal system information beyond what's necessary for diagnostics
+  - Temporary data or intermediate processing details
+- Report any scenario where verbose or error output exposes sensitive information.
 
 
 ---
@@ -170,6 +175,16 @@ When conducting research:
 When a security issue is confirmed:
 - A fix will be released as a new module version.
 - Release notes will describe the issue and mitigation guidance, avoiding exploit details when appropriate.
+- The module will be published to the PowerShell Gallery as a new release.
+
+---
+
+## Recommendations for Users
+
+- **Keep the module updated**: Install security updates promptly with `Update-Module PackageUpdateInfo`.
+- **Verify module integrity**: When installing from the PowerShell Gallery, use `Install-Module` with the `-Force` flag to ensure you get the latest version.
+- **Secure your configuration**: If using automation (scheduled tasks, jobs), ensure the execution context has appropriate permissions.
+- **Monitor for updates**: Use the module itself to track when updates are available for your other modules.
 
 ---
 
