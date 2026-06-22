@@ -12,3 +12,4 @@ $moduleRoot = Split-Path (Split-Path $PSScriptRoot)
 
 # Load the strings used in messages
 "$moduleRoot\internal\scripts\CheckBurnToast.ps1"
+"$moduleRoot\internal\scripts\CheckPSResourceGet.ps1"

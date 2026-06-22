@@ -1,8 +1,11 @@
 # Changelog
 
-## 1.2.6.0
+
+
+## 1.2.7.0
 
 ### Added
+- Make the module aware of the new PowerShellGet v3.0.0 and use the new command *Find-PSResource* for online information retrieval, if available. This should speed up the online information retrieval significantly, because *Find-PSResource* can handle multiple module names in one call, while *Find-Module* only accept one module name per call.
 - Add german (de-DE) localization for about_PackageUpdateInfo.help file.
 - Add spanish (es-ES) localization for about_PackageUpdateInfo.help file.
 - Add french (fr-FR) localization for about_PackageUpdateInfo.help file.
@@ -13,6 +16,14 @@
 - Some code refactoring in the functions of the module (no functional changes, just code style and readability improvements)
 - Refactoring of the comment-based help in the functions of the module (no functional changes, just code style and readability improvements)
 - Refactoring about_PackageUpdateInfo.help file with more userfriendly guidance and information about the module and the usage
+
+
+
+## 1.2.6.0
+
+### Changed
+- **Fix** Update Invoke-WebRequest to use basic parsing (KB5074596)
+
 
 
 ## 1.2.5.0
