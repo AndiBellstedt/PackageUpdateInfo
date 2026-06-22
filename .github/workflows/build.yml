@@ -23,8 +23,14 @@ jobs:
         shell: pwsh
 
       - name: Validate (PowerShell 7)
-        run: ./build/validate.ps1
         shell: pwsh
+        env:
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
+        run: |
+          $outputmode = "$($env:OUTPUT_MODE)"
+          if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
+          Write-Host "Invoking Pester tests using output mode: $outputmode"
+          & ./tests/pester.ps1 -Output $outputmode
 
   build:
     name: Build, publish and release module
