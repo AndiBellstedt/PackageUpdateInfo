@@ -2,50 +2,573 @@
     about_PackageUpdateInfo
 
 SHORT DESCRIPTION
-    The PackageUpdatesInfo module helps you staying up to date with you installed modules.
-    It checks all your local installed powershell modules and output a table with module names and version information.
+    PackageUpdateInfo is a PowerShell module that helps IT professionals keep their installed
+    PowerShell modules current by detecting available updates from configured repositories and
+    providing detailed version-change information and release notes.
 
 LONG DESCRIPTION
-    The PackageUpdatesInfo module helps you staying up to date with you installed modules. It checks all your local installed powershell modules and output a table with module names and version information.
+    PackageUpdateInfo addresses a critical operational concern for IT professionals who maintain
+    multiple PowerShell modules across their environment. This module queries your locally installed
+    PowerShell modules, compares them against one or more configured repositories (such as the
+    PowerShell Gallery), and reports on available updates with granular control over which version
+    changes you care about.
 
-    Installation:
-    Install the module from the PowerShell Gallery (systemwide):
+PROJECT OVERVIEW
 
-        Install-Module PackageUpdatesInfo
+    Modern IT environments often rely on community-developed PowerShell modules to extend
+    functionality and automate common tasks. Keeping these modules current requires a practical way
+    to identify when updates are available and decide which version changes are worth deploying.
 
-    or install it only for your user:
+    PackageUpdateInfo provides:
+    - Update detection across all installed modules
+    - Fine-grained control over which version changes to report (major, minor, build, revision)
+    - Per-module or group-based rules for customized update reporting
+    - Efficient export/import capability for off-loading update checks to background jobs or
+      scheduled tasks
+    - Integration with Windows toast notifications (when available)
+    - Access to release notes for modules that provide them
 
-        Install-Module PackageUpdatesInfo -Scope CurrentUser
+INSTALLATION
 
-    Interactive usage:
-    For interactive usage and check all your modules, just run:
+    Install the module from the PowerShell Gallery to your user scope (recommended for
+    non-admin scenarios):
+
+        Install-Module PackageUpdateInfo -Scope CurrentUser
+
+    Or install system-wide (requires administrator privileges):
+
+        Install-Module PackageUpdateInfo
+
+    After installation, you can verify the available commands:
+
+        Get-Command -Module PackageUpdateInfo
+
+QUICK START: INTERACTIVE USAGE
+
+    To check all your installed modules for available updates immediately, run:
 
         Get-PackageUpdateInfo
 
-    This will query all your installed modules and display a overview table which module will need an update and which one is up-to-date.
+    This command queries all modules discovered by your default include rules and displays a
+    table showing each module's name, repository source, installed version, available version
+    online, and whether an update is needed. Example output:
 
+        Name       Repository VersionInstalled VersionOnline NeedUpdate Path
+        ----       ---------- ---------------- ------------- ---------- ----
+        PSReadline PSGallery  1.2              1.2           False      C:\Program Files\...
+        Pester     PSGallery  4.4.0            4.4.2         True       C:\Program Files\...
 
-    Practical usage:
-    Because of -possibly- forgotting to run the command frequently, like once a day or one a week, and of poor performance with a lot of installed moduels, I suggest to automate this one.
-    So it is possible to **export** and **import** the Update-Information.
+    To focus only on modules that have available updates, use:
 
-        Get-PackageUpdateInfo | Export-PackageUpdateInfo
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate
+
+    To view Windows toast notifications for modules with available updates:
+
+        Get-PackageUpdateInfo -ShowToastNotification
+
+CORE CONCEPTS
+
+    Understanding Update Detection
+
+    Get-PackageUpdateInfo performs three essential checks:
+
+    1. Discovers all modules installed in your PowerShell module paths
+    2. Queries one or more repositories (by default, all configured PSRepositories) for
+       available versions of those modules
+    3. Compares installed versions with available versions to determine if an update exists
+
+    The command respects an update-check interval (default: 1 hour) to minimize redundant
+    repository queries. Use the -Force parameter to bypass this interval:
+
+        Get-PackageUpdateInfo -Force
+
+    Version-Change Reporting
+
+    PackageUpdateInfo breaks module versions into four components: Major, Minor, Build, and
+    Revision. For example, version 1.2.3.4 has:
+
+        Component   Value
+        ---------   -----
+        Major       1
+        Minor       2
+        Build       3
+        Revision    4
+
+    By default, all four components are monitored, meaning any version change is reported.
+    However, you can customize this behavior. For example, you might want to ignore revision
+    updates (patch-level fixes) but flag major and minor changes. This granular approach helps
+    you distinguish between critical updates, feature releases, and minor maintenance patches.
+
+    Release Notes and Changelog Access
+
+    Many modules in the PowerShell Gallery include release notes metadata. PackageUpdateInfo
+    captures this information when running Get-PackageUpdateInfo. You can then retrieve and
+    review these release notes using Show-PackageUpdateReleaseNote to understand what changed
+    in each update before deploying it:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Show-PackageUpdateReleaseNote
+
+    Release notes are often provided as URLs. The Show-PackageUpdateReleaseNote command
+    attempts to resolve and retrieve the content so that you can review changes directly within
+    your PowerShell console.
+
+MAIN WORKFLOW: CORE FUNCTIONS
+
+    The following functions form the primary workflow for working with PackageUpdateInfo.
+
+    Getting Update Information: Get-PackageUpdateInfo
+
+    Get-PackageUpdateInfo is the primary discovery function. Use it to:
+    - Check all installed modules (default): Get-PackageUpdateInfo
+    - Check specific modules: Get-PackageUpdateInfo -Name Pester, PSReadline
+    - Check only user-scope modules: Get-PackageUpdateInfo -CurrentUser
+    - Check all-users modules: Get-PackageUpdateInfo -AllUsers
+    - Query specific repositories: Get-PackageUpdateInfo -Repository PSGallery
+    - Bypass the update-check interval: Get-PackageUpdateInfo -Force
+
+    The command returns PackageUpdate.Info objects containing:
+
+        Name           - Module name
+        Repository     - Repository where the newer version was found
+        VersionInstalled - Currently installed version
+        VersionOnline  - Latest available version in the repository
+        NeedUpdate     - Boolean indicating if an update is available
+        Path           - Full path to the installed module
+        ReleaseNotes   - URL to release notes (if available)
+
+    Exporting Update Information: Export-PackageUpdateInfo
+
+    For performance reasons, especially with many installed modules, you may want to separate
+    the computationally expensive update check from the interactive reporting. Use
+    Export-PackageUpdateInfo to save update information to a file:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Export-PackageUpdateInfo
+
+    By default, the export file is stored in a module-specific directory:
+    - Windows: $HOME\AppData\Local\Microsoft\Windows\PowerShell\
+    - Linux: $HOME/.config/powershell/
+
+    Export files are named with edition and version information to avoid conflicts when running
+    multiple PowerShell editions on the same system.
+
+    Importing Cached Update Information: Import-PackageUpdateInfo
+
+    After exporting update information, you can quickly retrieve it from cache without running
+    the expensive update checks again:
+
         Import-PackageUpdateInfo
 
-    So with this, it is possible to "offload" the update checking to a Job, a scheduled task or the computer startup and show the information quickly with the **Import-PackageUpdateInfo** command.
+    This is useful for rapid PowerShell session startup or for reviewing cached results without
+    querying repositories again. Use -ShowOnlyNeededUpdate to filter results:
 
-    I'll suggest to put these lines to you PowerShell profile:
+        Import-PackageUpdateInfo -ShowOnlyNeededUpdate
 
-        Start-Job -ScriptBlock { Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Export-PackageUpdateInfo } | Out-Null
+    Or display toast notifications for cached results:
 
+        Import-PackageUpdateInfo -ShowToastNotification
+
+    A Typical Performance-Optimized Workflow
+
+    For environments where update checking should not block interactive shell startup, add the
+    following to your PowerShell profile:
+
+        Start-Job -ScriptBlock {
+            Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Export-PackageUpdateInfo
+        } | Out-Null
         Import-PackageUpdateInfo
 
-    This will start the update checking as a background job and show's you quickly the information from the last job run on every startup of the powershell.
+    This approach:
+    1. Starts an asynchronous background job that performs the expensive update check
+    2. Immediately returns control to your shell
+    3. Displays cached update information from the previous PowerShell session
+    4. The background job completes and updates the cache for your next session
 
-    References:
-    The following modules and code snipets inspired me. My goal was to do a short module with rich, powershell styled output and powershell styled functionality.
-    - The module is inspired by Jan De Dobbeleer: https://github.com/JanDeDobbeleer/Get-PackageUpdates
-    - Inspired by and partially stolen from http://jdhitsolutions.com/blog/powershell/5441/check-for-module-updates/
+CONFIGURING UPDATE BEHAVIOR: SETTINGS
+
+    The Set-PackageUpdateSetting and Get-PackageUpdateSetting functions control how
+    PackageUpdateInfo evaluates modules. Settings are stored in a persistent JSON configuration
+    file in your profile directory and apply globally to all PackageUpdateInfo commands.
+
+    Viewing Current Settings
+
+        Get-PackageUpdateSetting
+
+    Returns a PackageUpdate.Configuration object showing:
+    - DefaultRule: The rule applied to modules not matched by custom rules
+    - CustomRule: Any custom rules you have created
+    - UpdateCheckInterval: Minimum time between update checks
+    - LastCheck: Timestamp of the most recent update check attempt
+    - LastSuccessfulCheck: Timestamp of the most recent successful update check
+
+    Configuring the Default Rule
+
+    The default rule applies to all modules by default. Use Set-PackageUpdateSetting to
+    customize default behavior:
+
+    Exclude specific modules from update checking:
+
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalModule"
+
+    This is useful for local-only modules not available in online galleries. Excluded modules
+    are skipped entirely during Get-PackageUpdateInfo queries.
+
+    Report only on major and minor version changes, ignoring build and revision updates:
+
+        Set-PackageUpdateSetting -ReportChangeOnMajor $true -ReportChangeOnMinor $true `
+            -ReportChangeOnBuild $false -ReportChangeOnRevision $false
+
+    Adjust the update-check interval (default: 1 hour):
+
+        Set-PackageUpdateSetting -UpdateCheckInterval "02:00:00"
+
+    This sets the interval to 2 hours, reducing repository queries for repeated calls to
+    Get-PackageUpdateInfo within a 2-hour window.
+
+    Reset to Default Behavior
+
+        Set-PackageUpdateSetting -Reset
+
+MANAGING CUSTOM RULES: RULE FUNCTIONS
+
+    For fine-grained control over specific modules or groups of modules, use custom rules.
+    Rules allow you to define different update-reporting behavior for different modules or sets
+    of modules, overriding the default rule.
+
+    Creating a Custom Rule: Add-PackageUpdateRule
+
+    Add a rule that reports major and minor updates for a specific module, but ignores build
+    and revision changes:
+
+        Add-PackageUpdateRule -IncludeModuleForChecking "ImportExcel" `
+            -ReportChangeOnMajor $true -ReportChangeOnMinor $true `
+            -ReportChangeOnBuild $false -ReportChangeOnRevision $false
+
+    Add a rule that excludes a specific module from checking:
+
+        Add-PackageUpdateRule -ExcludeModuleFromChecking "MyInternalModule"
+
+    Add a rule for a group of modules, such as all Az.* modules:
+
+        Add-PackageUpdateRule -ExcludeModuleFromChecking "Az.*"
+
+    Note: Be cautious with broad exclusions. The Az modules are actively maintained; consider
+    whether blanket exclusion meets your operational needs.
+
+    Viewing Custom Rules: Get-PackageUpdateRule
+
+        Get-PackageUpdateRule
+
+    Returns all custom rules. Each rule shows:
+    - Id: Unique identifier for the rule
+    - IncludeModuleForChecking: Modules covered by this rule (or empty for all)
+    - ExcludeModuleFromChecking: Modules excluded by this rule
+    - ReportChangeOn{Major,Minor,Build,Revision}: Which changes to report
+
+    Modifying a Rule: Set-PackageUpdateRule
+
+        Set-PackageUpdateRule -Id 1 -ReportChangeOnRevision $false
+
+    Removing a Rule: Remove-PackageUpdateRule
+
+        Remove-PackageUpdateRule -Id 1
+
+    Rule Priority and Application
+
+    Custom rules are evaluated in descending order by their Id. When Get-PackageUpdateInfo
+    evaluates a module, it finds the first (highest Id) custom rule that matches the module
+    name. If no custom rule matches, the default rule applies.
+
+    This design allows you to create specific overrides for select modules while maintaining
+    sensible defaults for all others.
+
+    VIEWING RELEASE NOTES: Show-PackageUpdateReleaseNote
+
+    After identifying modules that need updates, review release notes to understand what changed:
+
+        Get-PackageUpdateInfo -ShowOnlyNeededUpdate | Show-PackageUpdateReleaseNote
+
+    Or retrieve release notes for already-imported cached data:
+
+        Import-PackageUpdateInfo | Show-PackageUpdateReleaseNote
+
+    Or view release notes for the currently loaded module in your session:
+
+        Get-Module Pester | Show-PackageUpdateReleaseNote
+
+    The Show-PackageUpdateReleaseNote command retrieves and displays release notes from
+    available URLs. Release note content appears directly in your console, helping you decide
+    whether to deploy each update.
+
+PERFORMANCE CONSIDERATIONS
+
+    Update checking can be computationally expensive when you have many installed modules or
+    when repository connections are slow. Consider these practices:
+
+    1. Use the update-check interval (Set-PackageUpdateSetting -UpdateCheckInterval)
+       to limit redundant repository queries.
+
+    2. Export update checks to background jobs (as shown in the workflow example) so that
+       interactive shell startup is not blocked.
+
+    3. Exclude modules not found in online galleries to avoid wasted repository queries:
+
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalModule"
+
+    4. For large module inventories, run Get-PackageUpdateInfo -ShowOnlyNeededUpdate |
+       Export-PackageUpdateInfo on a scheduled basis (e.g., nightly), then use
+       Import-PackageUpdateInfo during interactive sessions to retrieve cached results.
+
+BEST PRACTICES AND AUTOMATION
+
+    Scheduled Update Checking
+
+    Use Windows Task Scheduler or another job orchestration tool to run background update
+    checks on a regular schedule, then cache the results for quick access:
+
+        $scriptBlock = {
+            Get-PackageUpdateInfo -Force -ShowOnlyNeededUpdate |
+                Export-PackageUpdateInfo
+        }
+        Start-Job -ScriptBlock $scriptBlock
+
+    Environment-Based Rules
+
+    Create different custom rules for development and production environments. For example,
+    in production you might report only major version changes, while in development you track
+    all changes:
+
+        if ($env:ENVIRONMENT -eq 'Production') {
+            Set-PackageUpdateSetting -ReportChangeOnMajor $true `
+                -ReportChangeOnMinor $false -ReportChangeOnBuild $false `
+                -ReportChangeOnRevision $false
+        }
+
+    Update Approval Workflows
+
+    Combine PackageUpdateInfo with your change-management process:
+
+        $updates = Get-PackageUpdateInfo -ShowOnlyNeededUpdate
+        $updates | Show-PackageUpdateReleaseNote
+        # Review release notes and approve updates
+        $updates | Select-Object Name, VersionOnline | Export-Csv -Path "ApprovedUpdates.csv"
+
+    Alert Integration
+
+    Use toast notifications to alert yourself when critical modules have updates:
+
+        if (@(Get-PackageUpdateInfo -ShowOnlyNeededUpdate |
+              Where-Object Name -In 'Pester','PSFramework').Count -gt 0) {
+            Get-PackageUpdateInfo -ShowOnlyNeededUpdate -ShowToastNotification
+        }
+
+GETTING HELP
+
+    For detailed help on any command, use:
+
+        Get-Help Get-PackageUpdateInfo -Full
+        Get-Help Set-PackageUpdateSetting -Full
+        Get-Help Add-PackageUpdateRule -Full
+        Get-Help Show-PackageUpdateReleaseNote -Full
+
+    Aliases for Quick Access
+
+    Most commands have convenient aliases for faster typing:
+
+        gpui  = Get-PackageUpdateInfo
+        epui  = Export-PackageUpdateInfo
+        ipui  = Import-PackageUpdateInfo
+        spurn = Show-PackageUpdateReleaseNote
+        gpus  = Get-PackageUpdateSetting
+        spus  = Set-PackageUpdateSetting
+        apur  = Add-PackageUpdateRule
+        gpur  = Get-PackageUpdateRule
+        spur  = Set-PackageUpdateRule
+        rpur  = Remove-PackageUpdateRule
+
+TROUBLESHOOTING
+
+    Update Check is Skipped with Warning
+
+    Symptom: Get-PackageUpdateInfo returns a warning that update checking was skipped.
+
+    Cause: The module enforces an update-check interval (default: 1 hour) to avoid redundant
+    repository queries. If you run the command multiple times within the interval, subsequent
+    calls are suppressed to protect system performance and gallery resources.
+
+    Solution: Use the -Force parameter to bypass the interval and perform an immediate check:
+
+        Get-PackageUpdateInfo -Force
+
+    Or adjust the interval to a shorter duration:
+
+        Set-PackageUpdateSetting -UpdateCheckInterval "00:15:00"
+
+    No Modules Are Returned
+
+    Symptom: Get-PackageUpdateInfo returns an empty list even though you have modules installed.
+
+    Cause: Most likely, all installed modules have been excluded from checking via rules, or no
+    default repositories are configured on your system.
+
+    Solution: First, verify that repositories are available:
+
+        Get-PSRepository
+
+    If no repositories are shown, add the PowerShell Gallery:
+
+        Register-PSRepository -Default
+
+    Check your configured rules:
+
+        Get-PackageUpdateSetting
+
+    Review both the DefaultRule and any CustomRule to ensure modules are not excluded. If needed,
+    reset the configuration:
+
+        Set-PackageUpdateSetting -Reset
+
+    Modules Are Excluded from Checking Unexpectedly
+
+    Symptom: Specific modules do not appear in Get-PackageUpdateInfo output even though they
+    are installed.
+
+    Cause: A custom rule or the default rule has excluded these modules from checking.
+
+    Solution: Check which rules apply to the module:
+
+        Get-PackageUpdateRule
+        Get-PackageUpdateSetting
+
+    If you want to include the module, remove the exclusion rule or edit the default rule:
+
+        # Remove a specific custom rule by Id
+        Remove-PackageUpdateRule -Id <RuleId>
+
+        # Or clear exclusions from the default rule
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking $null
+
+    Release Notes Are Not Available
+
+    Symptom: Show-PackageUpdateReleaseNote returns no output or a message that release notes
+    are not found.
+
+    Cause: Not all modules in the PowerShell Gallery include release note metadata. Some older
+    modules or community-maintained modules may not have this information.
+
+    Solution: This is expected behavior. Release notes are optional metadata that module authors
+    may choose to include. Check the module's repository or website directly for release
+    information:
+
+        Get-PackageUpdateInfo | Select-Object Name, Repository, ReleaseNotes
+
+    Export/Import Files Are Not Found
+
+    Symptom: Import-PackageUpdateInfo reports that no cached export file exists, or export
+    files appear in unexpected locations.
+
+    Cause: Export files are stored in platform-specific directories with edition and version
+    information. If you switch PowerShell editions (Desktop vs. Core) or PowerShell versions,
+    export files from other configurations are not used.
+
+    Solution: Check where export files are stored:
+
+        Get-PackageUpdateSetting | Select-Object -ExpandProperty UpdateCheckInterval
+
+    The export file name includes edition and version: PackageUpdateInfo_Desktop_5.xml or
+    PackageUpdateInfo_Core_7.xml. To use exports across editions, manually export to a specific
+    path and import from that location:
+
+        Get-PackageUpdateInfo | Export-PackageUpdateInfo -Path "C:\Shared\Updates.xml"
+        Import-PackageUpdateInfo -Path "C:\Shared\Updates.xml"
+
+    Commands Return Errors About Configuration Files
+
+    Symptom: Errors mention a missing or invalid configuration file path.
+
+    Cause: The module settings file may be corrupted, deleted, or inaccessible. This often
+    happens if you manually edit the JSON configuration file with incorrect syntax.
+
+    Solution: Reset the configuration to restore defaults:
+
+        Set-PackageUpdateSetting -Reset
+
+    If you manually edited the configuration file, ensure the JSON is valid. The configuration
+    file location is:
+    - Windows: $HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_Desktop_5.json
+    - Linux: $HOME/.config/powershell/PackageUpdateSetting_Core_7.json
+
+    (Note: Edition and version numbers vary based on your PowerShell setup.)
+
+    Performance Is Slow with Many Modules
+
+    Symptom: Get-PackageUpdateInfo takes a very long time to complete.
+
+    Cause: Update checking involves querying repositories for every installed module. Large
+    module inventories or slow network connections cause delays. Running the command
+    interactively blocks the shell.
+
+    Solution: Use the export/import pattern to offload checking to background jobs:
+
+        Start-Job -ScriptBlock {
+            Get-PackageUpdateInfo -Force -ShowOnlyNeededUpdate | Export-PackageUpdateInfo
+        } | Out-Null
+        Import-PackageUpdateInfo
+
+    Alternatively, exclude modules that you know are not in online galleries:
+
+        Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalModule", "InternalModule"
+
+    Or increase the update-check interval to reduce query frequency:
+
+        Set-PackageUpdateSetting -UpdateCheckInterval "06:00:00"
+
+    Toast Notifications Are Not Appearing
+
+    Symptom: Using -ShowToastNotification flag does not display Windows notifications.
+
+    Cause: Toast notifications require the BurntToast module and are only supported on Windows.
+    Some system configurations (Group Policy, notification settings) may block notifications.
+
+    Solution: Verify BurntToast is installed:
+
+        Get-Module BurntToast -ListAvailable
+
+    If not installed, install it:
+
+        Install-Module BurntToast -Scope CurrentUser
+
+    Check your Windows notification settings. Notifications can be silenced in Focus Assist,
+    Do Not Disturb mode, or Action Center settings. If BurntToast is not available, the
+    -ShowToastNotification flag is silently ignored.
+
+    Custom Rules Are Not Being Applied
+
+    Symptom: Custom rules created with Add-PackageUpdateRule do not affect the output of
+    Get-PackageUpdateInfo.
+
+    Cause: Rule priorities are based on the Id field in descending order. A lower-Id custom
+    rule may be shadowed by a higher-Id rule, or the module name pattern may not match
+    correctly.
+
+    Solution: Review all configured rules:
+
+        Get-PackageUpdateRule
+
+    Verify the rule Id values. Higher Id values take precedence. If a module matches multiple
+    rules, the rule with the highest Id is applied. Consider the rule priority carefully when
+    creating rules.
+
+    Also verify that the module name pattern matches. For example, "Az.*" requires the module
+    name to start with "Az." — it will not match "AzureRm" modules.
+
+
+REFERENCES AND INSPIRATION
+
+    This module was inspired by the work of:
+    - Jeff Hicks: http://jdhitsolutions.com/blog/powershell/5441/check-for-module-updates/
+
+    The goal of PackageUpdateInfo is to provide a focused, PowerShell-native solution for
+    module update management without unnecessary dependencies.
 
 KEYWORDS
-    module development debugging
+    modules updates management gallery PowerShell version detection rules configuration

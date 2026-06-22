@@ -20,7 +20,7 @@ param (
     [string]
     $Repository = 'PSGallery',
 
-    $Modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer", "BurntToast")
+    $Modules = @("Pester", "PSScriptAnalyzer", "BurntToast")
 )
 
 
@@ -30,8 +30,7 @@ foreach ($dependency in $data.RequiredModules) {
     if ($dependency -is [string]) {
         if ($Modules -contains $dependency) { continue }
         $Modules += $dependency
-    }
-    else {
+    } else {
         if ($Modules -contains $dependency.ModuleName) { continue }
         $Modules += $dependency.ModuleName
     }

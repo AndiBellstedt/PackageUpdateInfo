@@ -1,0 +1,63 @@
+﻿name: Build and publish module
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-linux-ps7:
+    name: Pester testing (only Linux with PowerShell 7)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 7)
+        run: ./build/prerequisites.ps1
+        shell: pwsh
+
+      - name: Validate (PowerShell 7)
+        shell: pwsh
+        env:
+          OUTPUT_MODE: "${{ vars.OUTPUT_MODE }}"
+        run: |
+          $outputmode = "$($env:OUTPUT_MODE)"
+          if ([string]::IsNullOrWhiteSpace($outputmode)) { $outputmode = 'None' }
+          Write-Host "Invoking Pester tests using output mode: $outputmode"
+          & ./tests/pester.ps1 -Output $outputmode
+
+  build:
+    name: Build, publish and release module
+    needs: [validate-linux-ps7]
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Prerequisites (PowerShell 7)
+        run: .\build\prerequisites.ps1
+        shell: pwsh
+
+      - name: Build the module
+        run: .\build\build.ps1
+        shell: pwsh
+
+      - name: Publish to PowerShell Gallery
+        run: .\build\publish.ps1 -ApiKey $env:APIKEY
+        shell: pwsh
+        env:
+          APIKEY: ${{ secrets.ApiKey }}
+
+      - name: Create GitHub release
+        run: .\build\release.ps1
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

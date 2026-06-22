@@ -1,92 +1,92 @@
 ﻿function Set-PackageUpdateSetting {
     <#
     .SYNOPSIS
-        Set behaviour settings for PackageUpdateInfo module
+        Configures update-check behavior and reporting preferences for PackageUpdateInfo.
 
     .DESCRIPTION
-        Set-PackageUpdateInfo configure basic settings for check and report on up-to-dateness information on installed modules
+        Configures how PackageUpdateInfo evaluates installed PowerShell modules for available updates.
+        Use this command to control which modules are included in or excluded from update checks,
+        decide which version changes should trigger update notifications, define how often update checks are performed,
+        and reset the stored settings to their defaults.
+        The configuration is persisted to a JSON settings file and can be applied either directly or by passing an existing configuration object.
 
     .PARAMETER Path
-        The filepath where to setting file is stored
+        The full path to the settings file that should be read from or written to.
 
-        This is optional, default path value is:
-        Linux:   "$HOME/.local/share/powershell/PackageUpdateInfo/PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
-        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json")
+        If this parameter is omitted, the command uses the module's default settings path:
+        Linux:   "$HOME/.config/powershell/PackageUpdateInfo/PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
+        Windows: "$HOME\AppData\Local\Microsoft\Windows\PowerShell\PackageUpdateSetting_$($PSEdition)_$($PSVersionTable.PSVersion.Major).json"
 
     .PARAMETER InputObject
-        Settings object parsed in from command Get-PackageUpdateSetting
+        A configuration object returned by Get-PackageUpdateSetting that should be updated in place.
 
     .PARAMETER ExcludeModuleFromChecking
-        ModuleNames to exclude from update checking in the default rule
+        The names of modules to exclude from update checking in the default rule.
 
     .PARAMETER IncludeModuleForChecking
-        ModuleNames to include from update checking in the default rule
-        By default all modules are included.
+        The names of modules to include in update checking in the default rule.
+        By default, all modules are included.
 
         Default value is: "*"
 
     .PARAMETER ReportChangeOnMajor
-        Report when major version changed for a module in the default rule
+        Indicates whether a change in the major version of a module should trigger an update notification in the default rule.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        only when the major version version of a module change.
+        This means Get-PackageUpdateSetting reports an update need only when the major version number of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         1      0      0     0
 
     .PARAMETER ReportChangeOnMinor
-        Report when minor version changed for a module in the default rule
+        Indicates whether a change in the minor version of a module should trigger an update notification in the default rule.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        only when the minor version version of a module change.
+        This means Get-PackageUpdateSetting reports an update need only when the minor version number of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         0      1      0     0
 
     .PARAMETER ReportChangeOnBuild
-        Report when build version changed for a module in the default rule
+        Indicates whether a change in the build version of a module should trigger an update notification in the default rule.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        when the build version version of a module change.
+        This means Get-PackageUpdateSetting reports an update need only when the build version number of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         0      0      1     0
 
     .PARAMETER ReportChangeOnRevision
-        Report when revision part changed for a module in the default rule
+        Indicates whether a change in the revision part of a module version should trigger an update notification in the default rule.
 
-        This means 'Get-PackageUpdateSetting' report update need,
-        when the revision version version of a module change.
+        This means Get-PackageUpdateSetting reports an update need only when the revision number of a module changes.
 
         Major  Minor  Build  Revision
         -----  -----  -----  --------
         1      0      0     0
 
     .PARAMETER UpdateCheckInterval
-        The minimum interval/timespan has to gone by,for doing a new module update check
+        The minimum time span that must pass before a new module update check is performed.
 
         Default value is: "01:00:00"
 
     .PARAMETER LastCheck
-        Timestamp when last check for update need on modules started
+        The timestamp when the last update-check cycle for modules started.
 
     .PARAMETER LastSuccessfulCheck
-        Timestamp when last check for update need finished
+        The timestamp when the last update-check cycle completed successfully.
 
     .PARAMETER Reset
-        Reset module to it'S default behaviour
+        Resets the module configuration to its default behavior.
 
     .PARAMETER PassThru
-        The setting object will be parsed to the pipeline for further processing
+        Returns the updated settings object to the pipeline for further processing.
 
     .PARAMETER WhatIf
-        If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+        Shows what would happen if the command were to run without actually performing any changes.
 
     .PARAMETER Confirm
-        If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        Prompts for confirmation before executing any operation that changes state.
 
     .EXAMPLE
         PS C:\> Set-PackageUpdateSetting -ExcludeModuleFromChecking "MyLocalOnlyModule"
@@ -113,14 +113,28 @@
         https://github.com/AndiBellstedt/PackageUpdateInfo#practical-usage
 
     .EXAMPLE
-        PS C:\> Set-PackageUpdateSetting -ExcludeModuleFromChecking @("") -IncludeModuleForChecking "*" -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $true -UpdateCheckInterval "01:00:00"
+        PS C:\> Set-PackageUpdateSetting -IncludeModuleForChecking "*" -ReportChangeOnMajor $true -ReportChangeOnMinor $true -ReportChangeOnBuild $true -ReportChangeOnRevision $true -UpdateCheckInterval "01:00:00"
 
-        Reset module to it'S default behaviour
+        Restores the default update-check behavior and notification thresholds while keeping the configured update interval at one hour.
 
     .EXAMPLE
         PS C:\> Set-PackageUpdateSetting -Reset
 
-        Reset module to it'S default behaviour
+        Resets the package update settings to the built-in defaults.
+
+    .EXAMPLE
+        PS C:\> Get-PackageUpdateSetting | Set-PackageUpdateSetting -PassThru
+
+        Updates the current configuration object in memory and returns it to the pipeline for further processing.
+
+    .NOTES
+        Version  : 1.1.0.0
+        Author   : Andi Bellstedt
+        Date     : 2026-06-21
+        Keywords : PackageUpdateInfo, Update, Module, Setting
+
+    .LINK
+        https://packageupdateinfo.andibellstedt.com/docs/commands/set-packageupdatesetting/
 
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
@@ -182,11 +196,12 @@
         $PassThru
     )
 
-    begin {
-    }
+    begin {}
 
     process {
+
         if ($PSCmdlet.ParameterSetName -like "ResetBehaviour") {
+
             if (-not $Path) { $Path = $script:ModuleSettingPath }
 
             if ($pscmdlet.ShouldProcess($path, "Reset PackageUpdateInfo behaviour")) {
@@ -214,9 +229,11 @@
                     $defaultSetting
                 }
             }
+
         }
 
         if ($PSCmdlet.ParameterSetName -like "SetBehaviour") {
+
             # If no setting object is piped in, get the current settings
             if (-not $InputObject) {
                 $paramPackageUpdateSetting = @{ }
@@ -277,9 +294,11 @@
             if ($pscmdlet.ShouldProcess($path, "Export PackageUpdateInfo")) {
                 $InputObject | ConvertFrom-PackageUpdateSetting | ConvertTo-Json | Out-File -FilePath $Path -Encoding default -Force
             }
+
         }
+
     }
 
-    end {
-    }
+    end {}
+
 }
