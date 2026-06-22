@@ -26,7 +26,8 @@ Stop if source and target branches are identical. Inform user: "Source and targe
 
 **Step 4: Gather PR details**
 
-If a PR template exists, use it. Otherwise, ask these questions in one message:
+Try to use the PR template from `.github/pull_request_template.md` if it exists.
+If not, ask the user the following questions in one message:
 
 1. What is the purpose of this PR?
 2. What changes were made and why?
