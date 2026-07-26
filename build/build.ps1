@@ -61,7 +61,11 @@ Get-ChildItem -Path "$($publishDir.FullName)\PackageUpdateInfo\internal\scripts\
 }
 
 # Add Explicit Export Statement (to avoid direct invocation of the .psm1 file giving access to non-exported functions)
-$functionNames = (Get-ChildItem -Path "$($WorkingDirectory)\PackageUpdateInfo\functions" -Filter '*.ps1' -Recurse).BaseName | Sort-Object
+#$functionNames = (Get-ChildItem -Path "$($WorkingDirectory)\PackageUpdateInfo\functions" -Filter '*.ps1' -Recurse).BaseName | Sort-Object
+$moduleDefinition = Import-PSFPowerShellDataFile -Path (Join-Path -Path (Join-Path -Path $WorkingDirectory -ChildPath 'PackageUpdateInfo') -ChildPath 'PackageUpdateInfo.psd1') -ErrorAction Stop
+$functionNames = @($moduleDefinition.AliasesToExport)
+$functionNames += @($moduleDefinition.CommandsToExport)
+$functionNames += @($moduleDefinition.FunctionsToExport)
 if ($functionNames) {
     $text += "Export-ModuleMember -Function '$($functionNames -join "','")'"
 }
