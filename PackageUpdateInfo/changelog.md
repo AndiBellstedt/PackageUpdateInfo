@@ -2,6 +2,13 @@
 
 
 
+## 1.2.7.1
+
+### Changed
+- **Fix** AliasesToExport in PackageUpdateInfo.psd1 was not set correctly. This caused the module to not export the aliases for the commands. Fixed this issue by setting the correct aliases in the psd1 file.
+
+
+
 ## 1.2.7.0
 
 ### Added
@@ -78,7 +85,7 @@
 
 
 
-## 1.2.0.0
+## 1.2.0---.0
 
 ### Added
 - Enabling CORE and cross-platform compatibility
