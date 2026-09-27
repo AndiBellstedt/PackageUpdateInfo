@@ -29,9 +29,9 @@
         Returns the configured update check interval from the current settings.
 
     .NOTES
-        Version  : 1.1.0.0
+        Version  : 1.2.0.0
         Author   : Andi Bellstedt
-        Date     : 2026-06-21
+        Date     : 2026-09-27
         Keywords : PackageUpdateInfo, Update, Module, Setting
 
     .LINK
@@ -59,6 +59,19 @@
             Write-Warning -Message "Module configuration file not found! ($($Path))"
             Write-Warning -Message "Please check the path or initialize configuration by using 'Set-PackageUpdateSetting -Reset'"
             throw
+        }
+
+        # Validate configuration object
+        if (-not $configuration) {
+            Write-Warning -Message "Configuration in '$($Path)' is empty or invalid! Going to initialize default settings for module PackageUpdateInfo."
+            Set-PackageUpdateSetting -Reset -Path $script:ModuleSettingPath
+
+            # read settings file again
+            try {
+                $configuration = Get-Content -Path $Path -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+            } catch {
+                throw "Unable to initialize or read module configuration file! ($($Path))"
+            }
         }
 
         # Initialize setting object and fill in values
