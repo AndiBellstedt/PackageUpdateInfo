@@ -48,26 +48,41 @@ Copy-Item -Path "$($WorkingDirectory)\PackageUpdateInfo" -Destination $publishDi
 $text = @('$script:ModuleRoot = $PSScriptRoot')
 
 # Gather commands
+$text += "`n"
+$text += "#region -- Internal Functions"
 Get-ChildItem -Path "$($publishDir.FullName)\PackageUpdateInfo\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
     $text += [System.IO.File]::ReadAllText($_.FullName)
 }
+$text += "#endregion Internal Functions"
+
+$text += "`n"
+$text += "#region -- Public Functions"
 Get-ChildItem -Path "$($publishDir.FullName)\PackageUpdateInfo\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
     $text += [System.IO.File]::ReadAllText($_.FullName)
 }
+$text += "#endregion Public Functions"
 
 # Gather scripts
+$text += "`n"
+$text += "#region -- Internal Scripts"
 Get-ChildItem -Path "$($publishDir.FullName)\PackageUpdateInfo\internal\scripts\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
     $text += [System.IO.File]::ReadAllText($_.FullName)
 }
+$text += "#endregion Internal Scripts"
+
 
 # Add Explicit Export Statement (to avoid direct invocation of the .psm1 file giving access to non-exported functions)
 #$functionNames = (Get-ChildItem -Path "$($WorkingDirectory)\PackageUpdateInfo\functions" -Filter '*.ps1' -Recurse).BaseName | Sort-Object
 $moduleDefinition = Import-PSFPowerShellDataFile -Path (Join-Path -Path (Join-Path -Path $WorkingDirectory -ChildPath 'PackageUpdateInfo') -ChildPath 'PackageUpdateInfo.psd1') -ErrorAction Stop
-$functionNames = @($moduleDefinition.AliasesToExport)
-$functionNames += @($moduleDefinition.CommandsToExport)
-$functionNames += @($moduleDefinition.FunctionsToExport)
+$functionNames = @($moduleDefinition.CommandsToExport + $moduleDefinition.FunctionsToExport)
 if ($functionNames) {
+    $text += "`n"
     $text += "Export-ModuleMember -Function '$($functionNames -join "','")'"
+}
+$functionAliasNames = @($moduleDefinition.AliasesToExport)
+if ($functionAliasNames) {
+    $text += "`n"
+    $text += "Export-ModuleMember -Alias '$($functionAliasNames -join "','")'"
 }
 
 #region Update the psm1 file & Cleanup
