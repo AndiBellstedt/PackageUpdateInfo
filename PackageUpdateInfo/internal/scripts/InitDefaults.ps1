@@ -30,7 +30,10 @@ if (Test-Path -Path $script:ModuleTempPath) {
     New-Item -Path $script:ModuleTempPath -ItemType Directory -Force | Out-Null
 }
 
-if (-not (Test-Path -Path $script:ModuleSettingPath -PathType Leaf)) {
+if (
+    (-not (Test-Path -Path $script:ModuleSettingPath -PathType Leaf)) -or
+    (-not (Get-Content -Path $script:ModuleSettingPath -ErrorAction SilentlyContinue | ConvertTo-Json -ErrorAction SilentlyContinue))
+) {
     Write-Verbose -Message "Going to initialize default settings for module PackageUpdateInfo"
     Set-PackageUpdateSetting -Reset -Path $script:ModuleSettingPath
 }

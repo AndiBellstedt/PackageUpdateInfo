@@ -2,6 +2,14 @@
 
 
 
+## 1.2.8.0
+
+### Changed
+- **Fix** Some minor bug in creation and initialization the default configuration file.
+- **Fix** Finally resolve issue with incorrect alias export in the module manifest.
+
+
+
 ## 1.2.7.1
 
 ### Changed
